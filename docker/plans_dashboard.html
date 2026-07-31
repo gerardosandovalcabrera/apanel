@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APanel - Planes y Límites</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .current-plan {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .current-plan h2 {
+            margin-bottom: 10px;
+        }
+        
+        .current-plan .plan-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .current-plan .detail-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .current-plan .detail-item strong {
+            display: block;
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        
+        .current-plan .detail-item span {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        
+        .usage-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .usage-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .usage-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .usage-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .usage-card.warning {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+        
+        .usage-card.danger {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .usage-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .usage-card .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .usage-card .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .usage-card.warning .progress-fill {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .usage-card.danger .progress-fill {
+            background: #dc3545;
+        }
+        
+        .usage-card .usage-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .plans-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .plans-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .plan-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .plan-card.current {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+        }
+        
+        .plan-card.current::before {
+            content: 'Plan Actual';
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .plan-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        
+        .plan-card .price {
+            font-size: 2.5em;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .plan-card .price span {
+            font-size: 0.4em;
+            color: #666;
+            font-weight: normal;
+        }
+        
+        .plan-card .yearly-price {
+            color: #28a745;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        
+        .plan-card .features {
+            list-style: none;
+            margin: 20px 0;
+        }
+        
+        .plan-card .features li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .plan-card .features li:before {
+            content: '✓ ';
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .plan-card .upgrade-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .plan-card .upgrade-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .plan-card.current .upgrade-btn {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .alerts-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .alerts-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .alert.warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .alert.danger {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .alert.info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .alert-icon {
+            font-size: 1.5em;
+        }
+        
+        .alert-content h4 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .alert-content p {
+            color: #666;
+            margin: 0;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .modal-content h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .modal-content .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .modal-content label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .modal-content select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        
+        .modal-content .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .modal-content .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .modal-content .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .modal-content .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .usage-metrics,
+            .plans-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎯 Planes y Límites</h1>
+            <p>Gestiona tu suscripción y monitorea el uso de tu plan</p>
+            
+            <div class="current-plan" id="currentPlan">
+                <h2>📊 Plan Actual: <span id="planName">Cargando...</span></h2>
+                <div class="plan-details">
+                    <div class="detail-item">
+                        <strong>Precio Mensual</strong>
+                        <span id="planPrice">$0.00</span>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Agentes Concurrentes</strong>
+                        <span id="concurrentAgents">0/0</span>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Tokens Mensuales</strong>
+                        <span id="monthlyTokens">0/0</span>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Próximo Billing</strong>
+                        <span id="nextBilling">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Usage Section -->
+        <div class="usage-section">
+            <h2>📈 Uso Actual</h2>
+            <div class="usage-metrics" id="usageMetrics">
+                <!-- Usage cards will be loaded here -->
+            </div>
+        </div>
+        
+        <!-- Alerts Section -->
+        <div class="alerts-section" id="alertsSection" style="display: none;">
+            <h2>⚠️ Alertas y Sugerencias</h2>
+            <div id="alertsList">
+                <!-- Alerts will be loaded here -->
+            </div>
+        </div>
+        
+        <!-- Plans Section -->
+        <div class="plans-section">
+            <h2>📦 Planes Disponibles</h2>
+            <div class="plans-grid" id="plansGrid">
+                <!-- Plan cards will be loaded here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upgrade Modal -->
+    <div class="modal" id="upgradeModal">
+        <div class="modal-content">
+            <h2>🚀 Upgrade de Plan</h2>
+            <div class="form-group">
+                <label for="targetPlan">Plan a seleccionar:</label>
+                <select id="targetPlan">
+                    <option value="pro">Pro Tier - $49/mes</option>
+                    <option value="team">Team Tier - $249/mes</option>
+                    <option value="enterprise">Enterprise Tier - Custom</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="billingCycle">Ciclo de facturación:</label>
+                <select id="billingCycle">
+                    <option value="monthly">Mensual</option>
+                    <option value="yearly">Anual (2 meses gratis)</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="confirmUpgrade()">Confirmar Upgrade</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Fetch current plan
+        async function fetchCurrentPlan() {
+            try {
+                const response = await fetch('/api/plans/current');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const plan = data.plan;
+                    document.getElementById('planName').textContent = plan.name;
+                    document.getElementById('planPrice').textContent = `$${plan.price_monthly || 0}/mes`;
+                    
+                    // Fetch usage stats
+                    fetchUsageStats();
+                }
+            } catch (error) {
+                console.error('Error fetching current plan:', error);
+            }
+        }
+        
+        // Fetch usage stats
+        async function fetchUsageStats() {
+            try {
+                const response = await fetch('/api/plans/billing/usage');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const usage = data.usage;
+                    
+                    // Update current plan details
+                    document.getElementById('concurrentAgents').textContent = 
+                        `${usage.concurrent_agents}/${usage.concurrent_limit}`;
+                    document.getElementById('monthlyTokens').textContent = 
+                        `${usage.tokens_used.toLocaleString()}/${usage.tokens_limit.toLocaleString()}`;
+                    
+                    // Calculate next billing date
+                    const nextBilling = new Date();
+                    nextBilling.setDate(nextBilling.getDate() + 30);
+                    document.getElementById('nextBilling').textContent = 
+                        nextBilling.toLocaleDateString('es-ES');
+                    
+                    // Render usage metrics
+                    renderUsageMetrics(usage);
+                    
+                    // Fetch alerts
+                    fetchAlerts();
+                }
+            } catch (error) {
+                console.error('Error fetching usage stats:', error);
+            }
+        }
+        
+        // Render usage metrics
+        function renderUsageMetrics(usage) {
+            const container = document.getElementById('usageMetrics');
+            
+            const metrics = [
+                {
+                    title: 'Tokens Mensuales',
+                    current: usage.tokens_used,
+                    limit: usage.tokens_limit,
+                    percentage: usage.tokens_percentage,
+                    icon: '🪙'
+                },
+                {
+                    title: 'Llamadas Diarias',
+                    current: usage.calls_today,
+                    limit: usage.calls_limit,
+                    percentage: usage.calls_percentage,
+                    icon: '📞'
+                },
+                {
+                    title: 'Agentes Concurrentes',
+                    current: usage.concurrent_agents,
+                    limit: usage.concurrent_limit,
+                    percentage: usage.concurrent_percentage,
+                    icon: '🤖'
+                }
+            ];
+            
+            container.innerHTML = metrics.map(metric => {
+                let statusClass = '';
+                if (metric.percentage >= 90) {
+                    statusClass = 'danger';
+                } else if (metric.percentage >= 80) {
+                    statusClass = 'warning';
+                }
+                
+                return `
+                    <div class="usage-card ${statusClass}">
+                        <h3>${metric.icon} ${metric.title}</h3>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${metric.percentage}%">
+                                ${metric.percentage.toFixed(1)}%
+                            </div>
+                        </div>
+                        <div class="usage-stats">
+                            <span>Usado: ${metric.current.toLocaleString()}</span>
+                            <span>Límite: ${metric.limit.toLocaleString()}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Fetch alerts
+        async function fetchAlerts() {
+            try {
+                const response = await fetch('/api/plans/limits/status');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const status = data.status;
+                    const alertsSection = document.getElementById('alertsSection');
+                    const alertsList = document.getElementById('alertsList');
+                    
+                    const alerts = [];
+                    
+                    // Add warnings
+                    status.warnings.forEach(warning => {
+                        alerts.push({
+                            type: 'warning',
+                            icon: '⚠️',
+                            title: 'Alerta de Uso',
+                            message: warning
+                        });
+                    });
+                    
+                    // Add suggestions
+                    status.suggestions.forEach(suggestion => {
+                        alerts.push({
+                            type: 'info',
+                            icon: '💡',
+                            title: 'Sugerencia',
+                            message: suggestion
+                        });
+                    });
+                    
+                    if (alerts.length > 0) {
+                        alertsSection.style.display = 'block';
+                        alertsList.innerHTML = alerts.map(alert => `
+                            <div class="alert ${alert.type}">
+                                <span class="alert-icon">${alert.icon}</span>
+                                <div class="alert-content">
+                                    <h4>${alert.title}</h4>
+                                    <p>${alert.message}</p>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching alerts:', error);
+            }
+        }
+        
+        // Fetch available plans
+        async function fetchPlans() {
+            try {
+                const response = await fetch('/api/plans/');
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderPlans(data.plans);
+                }
+            } catch (error) {
+                console.error('Error fetching plans:', error);
+            }
+        }
+        
+        // Render plans
+        function renderPlans(plans) {
+            const container = document.getElementById('plansGrid');
+            
+            container.innerHTML = plans.map(plan => {
+                const isCurrent = plan.tier === 'pro'; // Assuming current plan is Pro
+                
+                return `
+                    <div class="plan-card ${isCurrent ? 'current' : ''}" style="position: relative;">
+                        <h3>${plan.name}</h3>
+                        <div class="price">$${plan.price_monthly || 0}<span>/mes</span></div>
+                        ${plan.price_yearly ? `<div class="yearly-price">$${plan.price_yearly}/año (ahorra 2 meses)</div>` : ''}
+                        <ul class="features">
+                            ${plan.features.map(feature => `<li>${feature}</li>`).join('')}
+                        </ul>
+                        <button class="upgrade-btn" ${isCurrent ? 'disabled' : ''} onclick="${isCurrent ? '' : `openUpgradeModal('${plan.tier}')`}">
+                            ${isCurrent ? 'Plan Actual' : 'Hacer Upgrade'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Modal functions
+        function openUpgradeModal(planTier) {
+            document.getElementById('targetPlan').value = planTier;
+            document.getElementById('upgradeModal').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('upgradeModal').classList.remove('active');
+        }
+        
+        async function confirmUpgrade() {
+            const targetTier = document.getElementById('targetPlan').value;
+            const billingCycle = document.getElementById('billingCycle').value;
+            
+            try {
+                const response = await fetch('/api/plans/billing/upgrade', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        target_tier: targetTier,
+                        billing_cycle: billingCycle
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`✅ ${data.message}\nAhorros: $${data.savings}`);
+                    closeModal();
+                    // Refresh data
+                    fetchCurrentPlan();
+                    fetchPlans();
+                } else {
+                    alert(`❌ Error: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Error upgrading plan:', error);
+                alert('❌ Error al hacer upgrade del plan');
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchCurrentPlan();
+            fetchPlans();
+        });
+    </script>
+</body>
+</html>
