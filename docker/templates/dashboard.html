@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -78,73 +78,83 @@
             background-color: #e74c3c;
             color: white;
         }
-        .status-unknown {
+        .status-warning {
             background-color: #f39c12;
             color: white;
         }
-        .health-score {
-            font-size: 3em;
-            font-weight: bold;
-            text-align: center;
-            margin: 10px 0;
-        }
-        .score-good {
-            color: #2ecc71;
-        }
-        .score-medium {
-            color: #f39c12;
-        }
-        .score-bad {
-            color: #e74c3c;
-        }
-        .agent-details {
+        .agent-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
             margin-top: 15px;
         }
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            border-bottom: 1px solid #ecf0f1;
-        }
-        .alerts {
-            margin-top: 15px;
-        }
-        .alert {
-            padding: 5px 10px;
-            margin: 5px 0;
+        .agent-metric {
+            background-color: #ecf0f1;
+            padding: 10px;
             border-radius: 4px;
-            font-size: 0.9em;
         }
-        .alert-warning {
-            background-color: #fff3cd;
-            border-left: 4px solid #ffc107;
+        .metric-title {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
         }
-        .alert-critical {
-            background-color: #f8d7da;
-            border-left: 4px solid #dc3545;
+        .metric-number {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #2c3e50;
         }
-        .actions {
+        .agent-actions {
             margin-top: 15px;
+            display: flex;
+            gap: 10px;
         }
         .btn {
             padding: 8px 16px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            margin-right: 5px;
+            font-size: 0.9em;
         }
         .btn-primary {
             background-color: #3498db;
             color: white;
         }
-        .btn-danger {
-            background-color: #e74c3c;
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
             color: white;
         }
-        .refresh-indicator {
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        .alert-error {
+            background-color: #fadbd8;
+            border-left: 4px solid #e74c3c;
+            color: #721c24;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+        .loading {
             text-align: center;
+            padding: 20px;
             color: #7f8c8d;
-            margin: 20px 0;
+        }
+        .refresh-info {
+            text-align: right;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -152,164 +162,197 @@
     <div class="dashboard">
         <div class="header">
             <h1>🤖 Hermes Multi-Agent Dashboard</h1>
-            <p>Administración centralizada de múltiples instancias de Hermes Agent</p>
+            <p>Real-time monitoring and management of Hermes agents</p>
         </div>
-        
+
+        <div class="alert alert-error" id="error-alert"></div>
+        <div class="alert alert-success" id="success-alert"></div>
+
+        <div class="refresh-info">
+            Last updated: <span id="last-update">Loading...</span> |
+            Auto-refresh every 30 seconds
+        </div>
+
         <div class="metrics">
             <div class="metric-card">
-                <div class="metric-value" id="agent-count">0</div>
-                <div class="metric-label">Agentes Totales</div>
+                <div class="metric-value" id="total-agents">0</div>
+                <div class="metric-label">Total Agents</div>
             </div>
             <div class="metric-card">
-                <div class="metric-value" id="healthy-count" style="color: #2ecc71;">0</div>
-                <div class="metric-label">Agentes Saludables</div>
+                <div class="metric-value" id="healthy-agents">0</div>
+                <div class="metric-label">Healthy Agents</div>
             </div>
             <div class="metric-card">
-                <div class="metric-value" id="unhealthy-count" style="color: #e74c3c;">0</div>
-                <div class="metric-label">Agentes Problemáticos</div>
+                <div class="metric-value" id="unhealthy-agents">0</div>
+                <div class="metric-label">Unhealthy Agents</div>
             </div>
             <div class="metric-card">
-                <div class="metric-value" id="avg-health">0</div>
-                <div class="metric-label">Health Score Promedio</div>
+                <div class="metric-value" id="avg-uptime">0%</div>
+                <div class="metric-label">Average Uptime</div>
             </div>
         </div>
-        
-        <div class="refresh-indicator">
-            🔄 Última actualización: <span id="last-update">Cargando...</span>
-        </div>
-        
-        <div class="agents-grid" id="agents-grid">
-            <!-- Los agentes se cargarán dinámicamente aquí -->
-        </div>
+
+        <h2 style="color: #2c3e50; margin-bottom: 20px;">📊 Agents</h2>
+        <div class="loading" id="loading">Loading agents...</div>
+        <div class="agents-grid" id="agents-grid"></div>
     </div>
-    
+
     <script>
-        async function loadMetrics() {
-            try {
-                const response = await fetch('/api/metrics');
-                const data = await response.json();
-                
-                document.getElementById('agent-count').textContent = data.agent_count;
-                document.getElementById('healthy-count').textContent = data.healthy_count;
-                document.getElementById('unhealthy-count').textContent = data.unhealthy_count;
-                document.getElementById('avg-health').textContent = data.avg_health_score;
-                document.getElementById('last-update').textContent = new Date(data.timestamp).toLocaleString();
-            } catch (error) {
-                console.error('Error al cargar métricas:', error);
-            }
+        // API base URL
+        const API_BASE = '/api';
+
+        // Show alert
+        function showAlert(message, type) {
+            const alertId = type === 'error' ? 'error-alert' : 'success-alert';
+            const alert = document.getElementById(alertId);
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
         }
-        
+
+        // Update last update time
+        function updateLastUpdate() {
+            const now = new Date();
+            document.getElementById('last-update').textContent = now.toLocaleTimeString();
+        }
+
+        // Load agents
         async function loadAgents() {
             try {
-                const response = await fetch('/api/agents');
-                const agents = await response.json();
+                const response = await fetch(`${API_BASE}/agents`);
+                const data = await response.json();
                 
-                const grid = document.getElementById('agents-grid');
-                grid.innerHTML = '';
-                
-                for (const [name, agent] of Object.entries(agents)) {
-                    const statusClass = agent.health_score >= 70 ? 'status-healthy' : 
-                                      agent.health_score >= 50 ? 'status-unknown' : 'status-unhealthy';
-                    const scoreClass = agent.health_score >= 70 ? 'score-good' : 
-                                     agent.health_score >= 50 ? 'score-medium' : 'score-bad';
-                    
-                    const alertsHtml = agent.alerts.map(alert => `
-                        <div class="alert alert-${alert.level}">
-                            <strong>${alert.level.toUpperCase()}:</strong> ${alert.message}
-                        </div>
-                    `).join('');
-                    
-                    const card = document.createElement('div');
-                    card.className = 'agent-card';
-                    card.innerHTML = `
-                        <div class="agent-header">
-                            <div class="agent-name">${name}</div>
-                            <div class="agent-status ${statusClass}">${agent.status}</div>
-                        </div>
-                        <div class="health-score ${scoreClass}">${agent.health_score}</div>
-                        <div class="agent-details">
-                            <div class="detail-row">
-                                <span>Host:</span>
-                                <span>${agent.host}:${agent.port}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span>Tipo:</span>
-                                <span>${agent.type}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span>Uptime:</span>
-                                <span>${agent.uptime.toFixed(1)}%</span>
-                            </div>
-                            <div class="detail-row">
-                                <span>Tokens:</span>
-                                <span>${agent.total_tokens.toLocaleString()}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span>Sesiones:</span>
-                                <span>${agent.sessions_count.toLocaleString()}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span>Último check:</span>
-                                <span>${agent.last_check ? new Date(agent.last_check).toLocaleString() : 'Nunca'}</span>
-                            </div>
-                        </div>
-                        ${alertsHtml ? `<div class="alerts">${alertsHtml}</div>` : ''}
-                        <div class="actions">
-                            <button class="btn btn-primary" onclick="checkAgent('${name}')">Verificar</button>
-                            <button class="btn btn-danger" onclick="restartAgent('${name}')">Reiniciar</button>
-                        </div>
-                    `;
-                    grid.appendChild(card);
+                if (data.success) {
+                    displayAgents(data.data);
+                    updateMetrics(data.data);
+                    updateLastUpdate();
+                    document.getElementById('loading').style.display = 'none';
+                } else {
+                    showAlert('Failed to load agents: ' + data.error, 'error');
                 }
             } catch (error) {
-                console.error('Error al cargar agentes:', error);
+                showAlert('Error loading agents: ' + error.message, 'error');
             }
         }
-        
-        async function checkAgent(name) {
+
+        // Display agents
+        function displayAgents(agents) {
+            const grid = document.getElementById('agents-grid');
+            grid.innerHTML = '';
+            
+            Object.entries(agents).forEach(([name, agent]) => {
+                const statusClass = agent.health_score >= 80 ? 'status-healthy' : 
+                                    agent.health_score >= 60 ? 'status-warning' : 'status-unhealthy';
+                const statusText = agent.health_score >= 80 ? 'Healthy' : 
+                                  agent.health_score >= 60 ? 'Warning' : 'Unhealthy';
+                
+                const card = document.createElement('div');
+                card.className = 'agent-card';
+                card.innerHTML = `
+                    <div class="agent-header">
+                        <div class="agent-name">${name}</div>
+                        <div class="agent-status ${statusClass}">${statusText}</div>
+                    </div>
+                    <div class="agent-metrics">
+                        <div class="agent-metric">
+                            <div class="metric-title">Health Score</div>
+                            <div class="metric-number">${agent.health_score}/100</div>
+                        </div>
+                        <div class="agent-metric">
+                            <div class="metric-title">Uptime</div>
+                            <div class="metric-number">${agent.uptime.toFixed(1)}%</div>
+                        </div>
+                        <div class="agent-metric">
+                            <div class="metric-title">Sessions</div>
+                            <div class="metric-number">${agent.sessions_count || 0}</div>
+                        </div>
+                        <div class="agent-metric">
+                            <div class="metric-title">Tokens</div>
+                            <div class="metric-number">${(agent.total_tokens || 0).toLocaleString()}</div>
+                        </div>
+                    </div>
+                    <div class="agent-actions">
+                        <button class="btn btn-primary" onclick="checkAgent('${name}')">Check</button>
+                        <button class="btn btn-secondary" onclick="restartAgent('${name}')">Restart</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Update metrics
+        function updateMetrics(agents) {
+            const agentsList = Object.values(agents);
+            const total = agentsList.length;
+            const healthy = agentsList.filter(a => a.health_score >= 80).length;
+            const unhealthy = agentsList.filter(a => a.health_score < 80).length;
+            const avgUptime = total > 0 ? 
+                agentsList.reduce((sum, a) => sum + a.uptime, 0) / total : 0;
+            
+            document.getElementById('total-agents').textContent = total;
+            document.getElementById('healthy-agents').textContent = healthy;
+            document.getElementById('unhealthy-agents').textContent = unhealthy;
+            document.getElementById('avg-uptime').textContent = avgUptime.toFixed(1) + '%';
+        }
+
+        // Check agent
+        async function checkAgent(agentName) {
             try {
-                const response = await fetch(`/api/agents/${name}/health`);
+                const response = await fetch(`${API_BASE}/agents/${agentName}/health`);
                 const data = await response.json();
-                alert(JSON.stringify(data, null, 2));
-                loadAgents(); // Recargar para mostrar cambios
+                
+                if (data.success) {
+                    showAlert(`Agent ${agentName} health: ${data.data.health_score}/100`, 'success');
+                    loadAgents(); // Refresh to show updated status
+                } else {
+                    showAlert(`Failed to check agent: ${data.error}`, 'error');
+                }
             } catch (error) {
-                console.error('Error al verificar agente:', error);
-                alert('Error al verificar agente');
+                showAlert('Error checking agent: ' + error.message, 'error');
             }
         }
-        
-        async function restartAgent(name) {
-            if (!confirm(`¿Estás seguro de que quieres reiniciar ${name}?`)) {
+
+        // Restart agent
+        async function restartAgent(agentName) {
+            if (!confirm(`Are you sure you want to restart agent ${agentName}?`)) {
                 return;
             }
             
             try {
-                const response = await fetch(`/api/agents/${name}/restart`, {
-                    method: 'POST'
+                const response = await fetch(`/mcp/call`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tool: 'restart_agent',
+                        arguments: {
+                            agent_name: agentName
+                        }
+                    })
                 });
+                
                 const data = await response.json();
                 
-                if (data.status === 'success') {
-                    alert('Agente reiniciado exitosamente');
-                    loadAgents(); // Recargar para mostrar cambios
+                if (data.success) {
+                    showAlert(`Agent ${agentName} restarted successfully`, 'success');
+                    loadAgents(); // Refresh to show updated status
                 } else {
-                    alert('Error al reiniciar: ' + (data.error || data.message));
+                    showAlert(`Failed to restart agent: ${data.error}`, 'error');
                 }
             } catch (error) {
-                console.error('Error al reiniciar agente:', error);
-                alert('Error al reiniciar agente');
+                showAlert('Error restarting agent: ' + error.message, 'error');
             }
         }
-        
-        // Cargar datos iniciales
-        loadMetrics();
+
+        // Initial load
         loadAgents();
         
-        // Actualizar cada 30 segundos
-        setInterval(() => {
-            loadMetrics();
-            loadAgents();
-        }, 30000);
+        // Auto-refresh every 30 seconds
+        setInterval(loadAgents, 30000);
     </script>
 </body>
 </html>
