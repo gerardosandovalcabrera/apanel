@@ -1,19 +1,19 @@
 """
-🚀 APanel Unified System - Sistema Principal Integrado
-Dashboard Web + MCP Server + Billing System + Plans & Limits
+🚀 APanel Unified System - Main Integrated System
+Web Dashboard + MCP Server + Billing System + Plans & Limits
 
-Este es el sistema principal que une todos los módulos en una sola aplicación.
+This is the main system that unites all modules into a single application.
 
-Módulos integrados:
+Integrated modules:
 1. Multi-Agent Management
 2. Billing System (Cost Tracking + Budget)
 3. Plans & Limits
 4. Security (OAuth, JWT, RBAC)
 
 Interfaces:
-- Dashboard Web (para humanos)
-- MCP Server (para agentes)
-- REST API (para integraciones)
+- Web Dashboard (for humans)
+- MCP Server (for agents)
+- REST API (for integrations)
 """
 
 import json
@@ -40,7 +40,7 @@ from hermes_multi_agent_dashboard import HermesMultiAgentManager
 # Plans & Limits
 from apanel_plans_limits import PlanTier, get_plans_manager
 
-# Configuración
+# Configuration
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -48,61 +48,61 @@ logging.basicConfig(
 logger = logging.getLogger('APanelUnified')
 
 # ========================================
-# INICIALIZACIÓN
+# INITIALIZATION
 # ========================================
 
 app = Flask(__name__)
 app.secret_key = 'apanel-secret-key-change-in-production'
 CORS(app)
 
-# Inicializar componentes
+# Initialize components
 manager = HermesMultiAgentManager()
 mcp_server = mcp_module.HermesMultiAgentMCP()
 mcp_server.manager = manager
 
 billing_system = BillingIntegrationDemo()
 
-# Plans Manager (en producción usar Redis)
+# Plans Manager (use Redis in production)
 # plans_manager = get_plans_manager()
 
 # ========================================
-# MIDDLEWARE - Inyectar organization_id
+# MIDDLEWARE - Inject organization_id
 # ========================================
 
 @app.before_request
 def inject_context():
-    """Inyectar contexto de organización en cada request"""
-    # En producción, esto vendría del JWT token
+    """Inject organization context into each request"""
+    # In production, this would come from JWT token
     g.organization_id = request.headers.get('X-Organization-ID', 'demo-org-billing')
     g.user_id = request.headers.get('X-User-ID', 'demo-user')
     g.plan_tier = request.headers.get('X-Plan-Tier', 'pro').lower()
 
 # ========================================
-# DASHBOARD PRINCIPAL
+# MAIN DASHBOARD
 # ========================================
 
 @app.route('/')
 def index():
-    """Página principal del dashboard con tabs"""
+    """Main dashboard page with tabs"""
     return render_template('unified_dashboard.html')
 
 @app.route('/billing')
 def billing_dashboard():
-    """Dashboard específico de billing"""
+    """Billing specific dashboard"""
     return render_template('billing_dashboard.html')
 
 @app.route('/plans')
 def plans_dashboard():
-    """Dashboard específico de planes"""
+    """Plans specific dashboard"""
     return render_template('plans_dashboard.html')
 
 # ========================================
-# API REST - Agentes
+# REST API - Agents
 # ========================================
 
 @app.route('/api/agents', methods=['GET'])
 def get_agents():
-    """Obtener todos los agentes"""
+    """Get all agents"""
     agents_data = {name: agent.to_dict() for name, agent in manager.agents.items()}
     return jsonify({
         "success": True,
@@ -111,13 +111,13 @@ def get_agents():
 
 @app.route('/api/agents/<agent_name>', methods=['GET'])
 def get_agent(agent_name):
-    """Obtener información de un agente específico"""
+    """Get information for a specific agent"""
     agent = manager.agents.get(agent_name)
     
     if not agent:
         return jsonify({
             "success": False,
-            "error": f"Agente '{agent_name}' no encontrado"
+            "error": f"Agent '{agent_name}' not found"
         }), 404
     
     return jsonify({
@@ -127,7 +127,7 @@ def get_agent(agent_name):
 
 @app.route('/api/agents/<agent_name>/health', methods=['GET'])
 def get_agent_health(agent_name):
-    """Obtener health score de un agente"""
+    """Get health score for a specific agent"""
     agent = manager.agents.get(agent_name)
     
     if not agent:
@@ -149,7 +149,7 @@ def get_agent_health(agent_name):
 
 @app.route('/api/metrics', methods=['GET'])
 def get_metrics():
-    """Obtener métricas agregadas del sistema"""
+    """Get aggregated system metrics"""
     metrics = manager.get_aggregated_metrics()
     
     return jsonify({
@@ -158,30 +158,30 @@ def get_metrics():
     })
 
 # ========================================
-# API REST - Billing Integrado
+# REST API - Integrated Billing
 # ========================================
 
 @app.route('/api/billing/unified-summary', methods=['GET'])
 def get_unified_billing_summary():
     """
-    Obtener resumen unificado de billing incluyendo:
-    - Costos de LLM
-    - Límites del plan
-    - Presupuesto
-    - Alertas
-    - Optimizaciones
+    Get unified billing summary including:
+    - LLM costs
+    - Plan limits
+    - Budget
+    - Alerts
+    - Optimizations
     """
     try:
         org_id = g.organization_id
         
-        # Obtener resumen de billing
+        # Get billing summary
         billing_summary = billing_system.get_billing_summary(org_id)
         
-        # Obtener límites del plan
-        plan_tier = PlanTier.PRO  # En producción, del JWT
+        # Get plan limits
+        plan_tier = PlanTier.PRO  # In production, from JWT
         # limit_status = plans_manager.get_limit_status(org_id, plan_tier)
         
-        # Simular limit status (en producción usar plans_manager real)
+        # Simulate limit status (in production use real plans_manager)
         limit_status = {
             "concurrent_agents": {
                 "current": len(manager.agents),
@@ -208,7 +208,7 @@ def get_unified_billing_summary():
         })
         
     except Exception as e:
-        logger.error(f"Error en unified billing summary: {e}")
+        logger.error(f"Error in unified billing summary: {e}")
         return jsonify({
             "success": False,
             "error": str(e)
@@ -217,10 +217,10 @@ def get_unified_billing_summary():
 @app.route('/api/billing/record-call', methods=['POST'])
 def record_llm_call():
     """
-    Registrar una llamada a la LLM y verificar límites
+    Register an LLM call and verify limits
     
-    Este endpoint es el que se llamaría desde el sistema de agentes
-    para registrar cada llamada a la API de LLM.
+    This endpoint is called from the agent system
+    to register each LLM API call.
     """
     try:
         data = request.get_json()
@@ -232,12 +232,12 @@ def record_llm_call():
         if not provider_model_id:
             return jsonify({
                 "success": False,
-                "error": "provider_model_id es requerido"
+                "error": "provider_model_id is required"
             }), 400
         
         org_id = g.organization_id
         
-        # Registrar la llamada
+        # Register the call
         call_record = billing_system.record_api_call(
             organization_id=org_id,
             provider_model_id=provider_model_id,
@@ -245,9 +245,9 @@ def record_llm_call():
             completion_tokens=completion_tokens
         )
         
-        # Verificar límites
-        # En producción, esto verificaría los límites del plan
-        # y bloquearía si se exceden
+        # Verify limits
+        # In production, this would verify plan limits
+        # and block if exceeded
         
         return jsonify({
             "success": True,
@@ -261,19 +261,19 @@ def record_llm_call():
         })
         
     except Exception as e:
-        logger.error(f"Error registrando llamada: {e}")
+        logger.error(f"Error recording call: {e}")
         return jsonify({
             "success": False,
             "error": str(e)
         }), 500
 
 # ========================================
-# MCP SERVER - Para Agentes
+# MCP SERVER - For Agents
 # ========================================
 
 @app.route('/mcp/tools', methods=['GET'])
 def mcp_list_tools():
-    """MCP: Listar todas las herramientas disponibles"""
+    """MCP: List all available tools"""
     tools = mcp_server.get_tools_list()
     return jsonify({
         "success": True,
@@ -282,7 +282,7 @@ def mcp_list_tools():
 
 @app.route('/mcp/call', methods=['POST'])
 def mcp_call_tool():
-    """MCP: Ejecutar una herramienta"""
+    """MCP: Execute a tool"""
     try:
         data = request.json
         tool_name = data.get('tool')
@@ -294,7 +294,7 @@ def mcp_call_tool():
                 "error": "Tool name is required"
             }), 400
         
-        # Ejecutar la herramienta de forma asíncrona
+        # Execute tool asynchronously
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         result = loop.run_until_complete(
@@ -305,7 +305,7 @@ def mcp_call_tool():
         return jsonify(result)
         
     except Exception as e:
-        logger.error(f"Error en MCP call: {e}")
+        logger.error(f"Error in MCP call: {e}")
         return jsonify({
             "success": False,
             "error": str(e)
@@ -313,12 +313,12 @@ def mcp_call_tool():
 
 @app.route('/mcp/resource/<path:resource_uri>', methods=['GET'])
 def mcp_get_resource(resource_uri):
-    """MCP: Obtener un recurso específico"""
+    """MCP: Get a specific resource"""
     try:
         resource_uri = resource_uri.replace('apanel://', '')
         
         if resource_uri == "billing":
-            # Resumen de billing para agentes
+            # Billing summary for agents
             billing_summary = billing_system.get_billing_summary(g.organization_id)
             return jsonify({
                 "success": True,
@@ -328,7 +328,7 @@ def mcp_get_resource(resource_uri):
             })
         
         elif resource_uri == "agents":
-            # Lista de agentes
+            # List of agents
             agents = {}
             for name, agent in manager.agents.items():
                 agents[name] = agent.to_dict()
@@ -358,7 +358,7 @@ def mcp_get_resource(resource_uri):
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
-    """Health check del sistema unificado"""
+    """Health check for unified system"""
     return jsonify({
         "status": "healthy",
         "service": "apanel-unified-system",
@@ -379,7 +379,7 @@ def health_check():
 
 @app.route('/api/status', methods=['GET'])
 def system_status():
-    """Estado detallado del sistema"""
+    """Detailed system status"""
     return jsonify({
         "success": True,
         "data": {
@@ -395,10 +395,10 @@ def system_status():
     })
 
 # ========================================
-# REGISTRAR BLUEPRINTS EXTERNOS
+# REGISTER EXTERNAL BLUEPRINTS
 # ========================================
 
-# Registrar blueprint de billing
+# Register billing blueprint
 register_billing_blueprint(app)
 
 # ========================================
@@ -429,25 +429,25 @@ if __name__ == '__main__':
     logger.info("🚀 APanel Unified System Starting...")
     logger.info("=" * 60)
     
-    logger.info("📊 Agentes detectados:")
+    logger.info("📊 Agents detected:")
     for name, agent in manager.agents.items():
         health = agent.health_score
         status = "✅" if health >= 80 else "⚠️" if health >= 60 else "❌"
         logger.info(f"   {status} {name}: Health {health}/100")
     
-    logger.info("\n🔌 Endpoints disponibles:")
+    logger.info("\n🔌 Available endpoints:")
     logger.info("   Web Dashboard: http://localhost:5000")
     logger.info("   Billing Dashboard: http://localhost:5000/billing")
     logger.info("   Plans Dashboard: http://localhost:5000/plans")
     logger.info("   MCP Server: http://localhost:5000/mcp")
     logger.info("   REST API: http://localhost:5000/api")
     
-    logger.info("\n💰 Billing System: Activo")
-    logger.info("🔐 Seguridad: JWT + RBAC activado")
-    logger.info("📊 Plans & Limits: Activo")
+    logger.info("\n💰 Billing System: Active")
+    logger.info("🔐 Security: JWT + RBAC enabled")
+    logger.info("📊 Plans & Limits: Active")
     
     logger.info("=" * 60)
-    logger.info("🎯 Sistema listo para uso!")
+    logger.info("🎯 System ready for use!")
     logger.info("=" * 60)
     
     app.run(
