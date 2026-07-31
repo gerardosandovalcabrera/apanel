@@ -178,13 +178,13 @@ class BillingIntegrationDemo:
         budget_status = None
         if budget:
             current_spent = Decimal(str(cost_summary["total_cost"]))
-            percentage = float(current_spent / budget.monthly_budget * 100) if budget.monthly_budget > 0 else 0
+            percentage = float(current_spent) / float(budget.monthly_budget) * 100 if budget.monthly_budget > 0 else 0
             
             budget_status = {
                 "budget_name": budget.name,
                 "monthly_budget": float(budget.monthly_budget),
                 "current_spent": float(current_spent),
-                "remaining": float(budget.monthly_budget - current_spent),
+                "remaining": float(budget.monthly_budget) - float(current_spent),
                 "percentage_used": percentage
             }
         
