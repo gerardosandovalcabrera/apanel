@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APanel - Billing Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .stat-card.warning {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+        
+        .stat-card.danger {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .stat-card .trend {
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        
+        .stat-card .trend.up {
+            color: #dc3545;
+        }
+        
+        .stat-card .trend.down {
+            color: #28a745;
+        }
+        
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .chart-card h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+        
+        .alerts-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .alerts-section h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .alert.warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .alert.danger {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .alert.info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .alert-icon {
+            font-size: 1.5em;
+        }
+        
+        .alert-content h4 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .optimizations-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .optimizations-section h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .optimization {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .optimization h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .optimization .savings {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .refresh-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Billing Dashboard</h1>
+            <p>Costos en tiempo real, alertas de presupuesto y optimizaciones</p>
+        </div>
+        
+        <button class="refresh-btn" onclick="refreshData()">🔄 Actualizar datos</button>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>💸 Costo Total (Mes)</h3>
+                <div class="value" id="totalCost">$0.00</div>
+                <div class="trend" id="costTrend">↑ 0% vs mes anterior</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>🪙 Tokens Usados</h3>
+                <div class="value" id="totalTokens">0</div>
+                <div class="trend" id="tokensTrend">↑ 0% vs mes anterior</div>
+            </div>
+            
+            <div class="stat-card" id="budgetCard">
+                <h3>💵 Presupuesto</h3>
+                <div class="value" id="budgetUsed">$0 / $0</div>
+                <div class="trend" id="budgetPercentage">0% usado</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>📞 Llamadas Totales</h3>
+                <div class="value" id="totalCalls">0</div>
+                <div class="trend" id="callsTrend">↑ 0% vs mes anterior</div>
+            </div>
+        </div>
+        
+        <div class="charts-section">
+            <div class="chart-card">
+                <h3>💸 Costos por Modelo</h3>
+                <canvas id="costByModelChart"></canvas>
+            </div>
+            
+            <div class="chart-card">
+                <h3>📊 Tokens por Modelo</h3>
+                <canvas id="tokensByModelChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="alerts-section" id="alertsSection" style="display: none;">
+            <h3>🔔 Alertas Activas</h3>
+            <div id="alertsList"></div>
+        </div>
+        
+        <div class="optimizations-section" id="optimizationsSection" style="display: none;">
+            <h3>💡 Sugerencias de Optimización</h3>
+            <div id="optimizationsList"></div>
+        </div>
+    </div>
+    
+    <script>
+        let costChart = null;
+        let tokensChart = null;
+        
+        async function refreshData() {
+            try {
+                const response = await fetch('/api/billing/summary');
+                const data = await response.json();
+                
+                updateStats(data);
+                updateCharts(data);
+                updateAlerts(data);
+                updateOptimizations(data);
+                
+            } catch (error) {
+                console.error('Error fetching billing data:', error);
+            }
+        }
+        
+        function updateStats(data) {
+            const costSummary = data.cost_summary;
+            const budgetStatus = data.budget_status;
+            
+            // Costo total
+            document.getElementById('totalCost').textContent = `$${costSummary.total_cost.toFixed(2)}`;
+            
+            // Tokens
+            document.getElementById('totalTokens').textContent = costSummary.total_tokens.toLocaleString();
+            
+            // Presupuesto
+            if (budgetStatus) {
+                const percentage = budgetStatus.percentage_used;
+                const budgetCard = document.getElementById('budgetCard');
+                const budgetUsed = document.getElementById('budgetUsed');
+                const budgetPercentage = document.getElementById('budgetPercentage');
+                
+                budgetUsed.textContent = `$${budgetStatus.current_spent.toFixed(2)} / $${budgetStatus.monthly_budget.toFixed(2)}`;
+                budgetPercentage.textContent = `${percentage.toFixed(1)}% usado`;
+                
+                if (percentage >= 100) {
+                    budgetCard.className = 'stat-card danger';
+                } else if (percentage >= 80) {
+                    budgetCard.className = 'stat-card warning';
+                } else {
+                    budgetCard.className = 'stat-card';
+                }
+            }
+            
+            // Llamadas
+            document.getElementById('totalCalls').textContent = costSummary.calls_count.toLocaleString();
+        }
+        
+        function updateCharts(data) {
+            const costByModel = data.cost_summary.cost_by_model;
+            const tokensByModel = data.cost_summary.tokens_by_model;
+            
+            const models = Object.keys(costByModel);
+            const costs = Object.values(costByModel);
+            const tokens = Object.values(tokensByModel);
+            
+            // Cost chart
+            if (costChart) {
+                costChart.destroy();
+            }
+            
+            const costCtx = document.getElementById('costByModelChart').getContext('2d');
+            costChart = new Chart(costCtx, {
+                type: 'bar',
+                data: {
+                    labels: models,
+                    datasets: [{
+                        label: 'Costo ($)',
+                        data: costs,
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(118, 75, 162, 0.8)',
+                            'rgba(40, 167, 69, 0.8)',
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(220, 53, 69, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Tokens chart
+            if (tokensChart) {
+                tokensChart.destroy();
+            }
+            
+            const tokensCtx = document.getElementById('tokensByModelChart').getContext('2d');
+            tokensChart = new Chart(tokensCtx, {
+                type: 'pie',
+                data: {
+                    labels: models,
+                    datasets: [{
+                        data: tokens,
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(118, 75, 162, 0.8)',
+                            'rgba(40, 167, 69, 0.8)',
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(220, 53, 69, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateAlerts(data) {
+            const alertsSection = document.getElementById('alertsSection');
+            const alertsList = document.getElementById('alertsList');
+            
+            if (!data.alerts || data.alerts.length === 0) {
+                alertsSection.style.display = 'none';
+                return;
+            }
+            
+            alertsSection.style.display = 'block';
+            alertsList.innerHTML = data.alerts.map(alert => `
+                <div class="alert ${alert.alert_type === 'exceeded' ? 'danger' : alert.alert_type === 'critical' ? 'danger' : 'warning'}">
+                    <span class="alert-icon">${alert.alert_type === 'exceeded' ? '🚨' : alert.alert_type === 'critical' ? '⚠️' : 'ℹ️'}</span>
+                    <div class="alert-content">
+                        <h4>${alert.alert_type.toUpperCase()}</h4>
+                        <p>${alert.message}</p>
+                        <small>${new Date(alert.timestamp).toLocaleString()}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function updateOptimizations(data) {
+            const optSection = document.getElementById('optimizationsSection');
+            const optList = document.getElementById('optimizationsList');
+            
+            if (!data.optimizations || data.optimizations.length === 0) {
+                optSection.style.display = 'none';
+                return;
+            }
+            
+            optSection.style.display = 'block';
+            optList.innerHTML = data.optimizations.map(opt => `
+                <div class="optimization">
+                    <h4>💡 ${opt.suggestion}</h4>
+                    <p class="savings">Ahorro potencial: $${opt.potential_savings.toFixed(6)} (${opt.potential_savings_percentage.toFixed(1)}%)</p>
+                </div>
+            `).join('');
+        }
+        
+        // Cargar datos iniciales
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshData();
+            
+            // Auto-refresh cada 30 segundos
+            setInterval(refreshData, 30000);
+        });
+    </script>
+</body>
+</html>
