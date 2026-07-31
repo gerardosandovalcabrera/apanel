@@ -1,0 +1,204 @@
+# .gitignore para APanel - Seguridad Máxima
+# Ignora archivos que puedan contener secrets o credenciales
+
+# === Archivos de configuración con secrets ===
+.env
+.env.*
+.env.local
+.env.production
+.env.staging
+.env.development
+config.env
+secrets.env
+
+# === Archivos de credenciales ===
+*.key
+*.pem
+*.crt
+*.cert
+*.p12
+*.pfx
+credentials.json
+auth.json
+secrets.json
+api_keys.json
+tokens.json
+
+# === Archivos de texto con secrets ===
+secrets.txt
+credentials.txt
+api_keys.txt
+passwords.txt
+tokens.txt
+private_keys.txt
+
+# === Directorios de secrets ===
+secrets/
+credentials/
+private/
+keys/
+certs/
+
+# === Archivos de base de datos ===
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+database/
+db/
+
+# === Archivos de logs ===
+*.log
+logs/
+*.log.*
+log/
+
+# === Archivos de backup ===
+*.backup
+*.bak
+*.old
+backup/
+backups/
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# === Virtual Environments ===
+venv/
+env/
+ENV/
+.venv
+virtualenv/
+.ENV/
+env.bak/
+venv.bak/
+
+# === Node.js ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
+.pnpm-store/
+node_modules/
+.pnp.*
+
+# === IDEs ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+.classpath
+
+# === Docker ===
+.docker/data/
+docker-volumes/
+*.pid
+
+# === Redis ===
+dump.rdb
+appendonly.aof
+
+# === Elasticsearch ===
+data/
+logs/
+
+# === Temporary files ===
+tmp/
+temp/
+*.tmp
+*.temp
+.cache/
+
+# === OS ===
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# === CI/CD ===
+.github/workflows/*.local.yml
+.gitlab-ci-local.yml
+
+# === Test coverage ===
+.coverage
+coverage/
+*.cover
+.hypothesis/
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# === Compiled files ===
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.pyd
+*.pyc
+*.pyo
+
+# === Package files ===
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# === Logs and databases ===
+*.log
+*.sql
+*.sqlite
+
+# === Environment variables ===
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
