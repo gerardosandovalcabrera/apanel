@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  # Agent Connector para conectar este agente remoto al dashboard
+  hermes-connector:
+    build:
+      context: .
+      dockerfile: Dockerfile.connector
+    container_name: hermes-connector
+    ports:
+      - "8081:8081"
+    volumes:
+      - ~/.hermes:/hermes-home:ro  # Montar directorio de Hermes
+      - ./connector-config:/app/config:rw
+      - ./connector-data:/app/data:rw
+    environment:
+      - AGENT_NAME=${AGENT_NAME:-agent-remote}
+      - AGENT_HOST=${AGENT_HOST:-$(hostname)}
+      - HERMES_PORT=${HERMES_PORT:-8080}
+      - AGENT_TYPE=${AGENT_TYPE:-remote}
+      - CONNECTOR_PORT=8081
+      - DASHBOARD_URL=${DASHBOARD_URL:-http://dashboard-server:5000}
+      - CONNECTOR_API_KEY=${CONNECTOR_API_KEY:-hermes-secure-key-change-me}
+      - HERMES_HOME=/hermes-home
+    network_mode: host  # Usar host network para acceder a Hermes local
+    restart: unless-stopped
+    privileged: true  # Necesario para acceder a procesos del host
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s

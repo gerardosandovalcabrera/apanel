@@ -1,0 +1,45 @@
+FROM python:3.12-slim
+
+LABEL maintainer="Hermes Multi-Agent System"
+LABEL description="Agent Connector para conectar instancias remotas de Hermes al Dashboard"
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    openssh-client \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar requirements
+COPY requirements-connector.txt .
+
+# Instalar dependencias de Python
+RUN pip install --no-cache-dir -r requirements-connector.txt
+
+# Copiar código del connector
+COPY hermes_agent_connector.py .
+
+# Crear directorio de datos
+RUN mkdir -p /app/data /app/logs
+
+# Exponer puerto para comunicación
+EXPOSE 8081
+
+# Variables de entorno
+ENV PYTHONUNBUFFERED=1
+ENV CONNECTOR_PORT=8081
+ENV DASHBOARD_URL="http://localhost:5000"
+ENV HERMES_HOME="~/.hermes"
+
+# Crear usuario no-root para seguridad
+RUN useradd -m -u 1000 hermes && \
+    chown -R hermes:hermes /app
+
+USER hermes
+
+# Comando de inicio
+CMD ["python", "hermes_agent_connector.py"]
