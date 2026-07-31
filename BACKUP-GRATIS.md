@@ -1,260 +1,325 @@
-# 🆓 Opciones de Backup GRATUITAS para Hermes
+# 🆓 FREE Backup Options for Hermes
 
-Comparación detallada de opciones gratuitas para backup externo de tu instalación de Hermes.
+Detailed comparison of free options for external backup of your Hermes installation.
 
-## 🏆 **Top 5 Opciones Gratuitas - Comparación**
+## 🏆 **Top 5 Free Options - Comparison**
 
-| Servicio | Espacio Gratis | Dificultad | Velocidad | Confiabilidad | Recomendado |
-|----------|---------------|------------|-----------|---------------|-------------|
-| **Google Drive** | 15 GB | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 🥇 **RECOMENDADO** |
-| **GitHub** | 1 GB | ⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 🥈 MUY BUENO |
-| **AWS S3 Free Tier** | 5 GB | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 🥉 BUENO (12 meses) |
-| **Google Cloud Storage** | 5 GB | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 🥉 BUENO (siempre) |
-| **Dropbox** | 2 GB | ⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ❌ Poco espacio |
+| Service | Free Space | Difficulty | Speed | Reliability | Recommended |
+|---------|------------|------------|-------|-------------|-------------|
+| **Google Drive** | 15 GB | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 🥇 **RECOMMENDED** |
+| **GitHub** | 1 GB | ⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 🥈 VERY GOOD |
+| **AWS S3 Free Tier** | 5 GB | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 🥉 GOOD (12 months) |
+| **Google Cloud Storage** | 5 GB | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | 🥉 GOOD (always) |
+| **Dropbox** | 2 GB | ⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ❌ Little space |
 
 ---
 
-## 🥇 **OPCIÓN 1: Google Drive - 15 GB GRATIS (RECOMENDADA)**
+## 🥇 **OPTION 1: Google Drive - 15 GB FREE (RECOMMENDED)**
 
-### ✅ **Ventajas:**
-- **15 GB gratis** - Más espacio que la mayoría
-- **Muy fácil de configurar** - Solo necesitas una cuenta de Google
-- **Acceso desde cualquier lugar** - Web, móvil, desktop
-- **Versionado automático** - Google guarda versiones anteriores
-- **Sincronización bidireccional** - Puedes editar archivos directamente
+### ✅ **Advantages:**
+- **15 GB free** - More space than most
+- **Very easy to configure** - Just need a Google account
+- **Access from anywhere** - Web, mobile, desktop
+- **Automatic versioning** - Google keeps previous versions
+- **Bidirectional sync** - You can edit files directly
 
-### ⚙️ **Configuración (5 minutos):**
+### ⚙️ **Setup (5 minutes):**
 
-#### **Paso 1: Instalar rclone**
+#### **Step 1: Install rclone**
 ```bash
 curl https://rclone.org/install.sh | sudo bash
 ```
 
-#### **Paso 2: Configurar Google Drive**
+#### **Step 2: Configure Google Drive**
 ```bash
-# Ejecutar el script automático
+# Run the automatic script
 ~/hermes-backup/backup-gdrive.sh
 ```
 
-El script te guiará para:
-1. Configurar rclone con Google Drive
-2. Seleccionar archivos importantes (no bases de datos grandes)
-3. Crear backups automáticos
+The script will guide you to:
+1. Configure rclone with Google Drive
+2. Select important files (not large databases)
+3. Create automatic backups
 
-#### **Paso 3: Primer backup**
+#### **Step 3: First backup**
 ```bash
 ~/hermes-backup/backup-gdrive.sh
 ```
 
-### 📊 **Qué se respalda a Google Drive:**
-- ✅ `config.yaml` - Configuración completa
-- ✅ `.env` - Variables de entorno (API keys)
-- ✅ `auth.json` - Tokens de autenticación
-- ✅ `tools/` - Herramientas personalizadas
-- ✅ `skills/` - Skills personalizadas
-- ✅ `plugins/` - Plugins instalados
-- ❌ NO: Bases de datos grandes (state.db)
+### 📊 **What gets backed up to Google Drive:**
+- ✅ `config.yaml` - Complete configuration
+- ✅ Skills directory - Your custom skills
+- ✅ Plugins directory - Installed plugins
+- ✅ Cron jobs configuration
+- ✅ Documentation and notes
+- ❌ Large databases (use local backup)
 
-### 🔄 **Automatización:**
+### 🔄 **Schedule Automatic Backups:**
+
 ```bash
-# Agregar al crontab para backup diario a las 3:00 AM
-0 3 * * * /home/hermeswebui/hermes-backup/backup-gdrive.sh >> /home/hermeswebui/hermes-backup/gdrive-backup.log 2>&1
+# Add to crontab
+crontab -e
+
+# Backup every day at 2 AM
+0 2 * * * ~/hermes-backup/backup-gdrive.sh
 ```
 
-### 💾 **Espacio estimado:**
-```
-Configuración y herramientas: ~10-50 MB
-Disponible en Google Drive: 15,000 MB
-Porcentaje usado: 0.3-3%
-Espacio restante: 14,950-14,990 MB
+### 💾 **Restore from Google Drive:**
+
+```bash
+# List backups
+rclone ls gdrive:hermes-backup/
+
+# Restore specific file
+rclone copy gdrive:hermes-backup/config.yaml ~/.hermes/config.yaml
 ```
 
 ---
 
-## 🥈 **OPCIÓN 2: GitHub - 1 GB GRATIS (MUY BUENO)**
+## 🥈 **OPTION 2: GitHub - 1 GB FREE (VERY GOOD)**
 
-### ✅ **Ventajas:**
-- **1 GB gratis** para repositorios privados
-- **100% gratuito** para repositorios públicos (si no hay secrets)
-- **Git nativo** - Versionado perfecto
-- **Muy confiable** - Infraestructura de GitHub
-- **Acceso desde cualquier lugar** - Web, API, Git
-- **Colaboración** - Puedes dar acceso a otros
+### ✅ **Advantages:**
+- **Version control built-in** - Git tracks all changes
+- **Collaboration** - Easy to share with team
+- **Issue tracking** - For documentation
+- **Free private repos** - Your backups stay private
+- **Reliable** - Used by millions of developers
 
-### ⚙️ **Configuración (3 minutos):**
+### ⚙️ **Setup (10 minutes):**
 
-#### **Paso 1: Crear token de GitHub**
-1. Ve a: https://github.com/settings/tokens
-2. Crea un "Personal Access Token"
-3. Otorga permisos: `repo` (full control)
-4. Copia el token
+#### **Step 1: Create GitHub Repository**
 
-#### **Paso 2: Configurar variables de entorno**
+1. Go to https://github.com/new
+2. Create private repository: `hermes-backup`
+3. Generate personal access token:
+   - Settings → Developer settings → Personal access tokens
+   - Generate token with `repo` scope
+   - **Save the token** (you won't see it again)
+
+#### **Step 2: Configure backup script**
+
 ```bash
-export GITHUB_TOKEN='tu_token_aqui'
-export GITHUB_REPO='tu_usuario/hermes-config-backup'
+# Set your GitHub token
+export GITHUB_TOKEN='your-token-here'
+
+# Run first backup
+~/hermes-backup/backup-github-safe.sh
 ```
 
-#### **Paso 3: Ejecutar backup**
+### 📊 **What gets backed up to GitHub:**
+- ✅ All configuration files
+- ✅ Skills and plugins
+- ✅ Cron job configs
+- ✅ Documentation
+- ✅ **SECURE**: Excludes .env, auth.json, secrets
+
+### 🔒 **Security Features:**
+
+The backup script automatically excludes:
 ```bash
-~/hermes-backup/backup-github.sh
+.env
+.env.*
+auth.json
+*.key
+*.pem
+secrets/
+credentials/
 ```
 
-### 📊 **Qué se respalda a GitHub:**
-- ✅ `config.yaml` - Configuración completa
-- ✅ `.env` - Variables de entorno (API keys)
-- ✅ `auth.json` - Tokens de autenticación
-- ✅ `tools/*.py` - Herramientas en Python
-- ✅ `tools/*.sh` - Scripts en Bash
-- ✅ `skills/**/*.md` - Documentación de skills
-- ✅ `README.md` - Documentación
-- ❌ NO: Archivos binarios grandes
+### 💾 **Restore from GitHub:**
 
-### 🔄 **Automatización:**
 ```bash
-# Backup diario a GitHub
-0 3 * * * /home/hermeswebui/hermes-backup/backup-github.sh >> /home/hermeswebui/hermes-backup/github-backup.log 2>&1
-```
+# Clone repository
+git clone https://github.com/YOUR_USERNAME/hermes-backup.git ~/hermes-restore
 
-### 💾 **Espacio estimado:**
-```
-Configuración y código: ~5-20 MB
-Disponible en GitHub: 1,000 MB
-Porcentaje usado: 0.5-2%
-Espacio restante: 980-995 MB
+# Copy files to Hermes
+cp -r ~/hermes-restore/* ~/.hermes/
 ```
 
 ---
 
-## 🥉 **OPCIÓN 3: AWS S3 Free Tier - 5 GB/mes GRATIS**
+## 🥉 **OPTION 3: AWS S3 Free Tier - 5 GB FREE (GOOD for 12 months)**
 
-### ✅ **Ventajas:**
-- **5 GB gratis al mes** por 12 meses
-- **Infraestructura de Amazon** - Muy confiable
-- **API excelente** - Muchas herramientas disponibles
-- **Integración con AWS** - Si usas otros servicios AWS
+### ✅ **Advantages:**
+- **5 GB storage** free for 12 months
+- **Industry standard** - Used by major companies
+- **High reliability** - 99.999999999% durability
+- **Fast access** - Global CDN
+- **Versioning** - Keeps file history
 
-### ⚠️ **Desventajas:**
-- **Solo gratis por 12 meses**
-- **Configuración más compleja**
-- **Necesita cuenta AWS**
+### ⚠️ **Disadvantages:**
+- **Limited to 12 months** - Then you must pay
+- **More complex setup** - Requires AWS account
+- **Learning curve** - Need to understand S3
 
-### ⚙️ **Configuración (10 minutos):**
+### ⚙️ **Setup (20 minutes):**
 
-#### **Paso 1: Crear cuenta AWS**
-1. Ve a: https://aws.amazon.com/free/
-2. Crea una cuenta gratuita
-3. Configura AWS CLI: `aws configure`
+#### **Step 1: Create AWS Account**
 
-#### **Paso 2: Configurar backup**
+1. Go to https://aws.amazon.com/free/
+2. Sign up (credit card required)
+3. Verify identity
+
+#### **Step 2: Create S3 Bucket**
+
 ```bash
-export BACKUP_S3_BUCKET='mi-bucket-hermes-backup'
-~/hermes-backup/backup-remote.sh
+# Install AWS CLI
+pip3 install awscli
+
+# Configure credentials
+aws configure
+
+# Create bucket
+aws s3 mb s3://hermes-backup-bucket
 ```
 
----
+#### **Step 3: Backup command**
 
-## 📋 **Comparación Detallada de Espacio y Uso**
-
-### **Tamaño estimado de tu instalación actual:**
-
-| Componente | Tamaño | ¿A Google Drive? | ¿A GitHub? | ¿A S3? |
-|------------|--------|------------------|------------|---------|
-| **config.yaml** | ~1 KB | ✅ Sí | ✅ Sí | ✅ Sí |
-| **.env** | ~0.5 KB | ✅ Sí | ✅ Sí | ✅ Sí |
-| **auth.json** | ~7 KB | ✅ Sí | ✅ Sí | ✅ Sí |
-| **tools/** | ~50 MB | ✅ Sí | ✅ Sí | ✅ Sí |
-| **skills/** | ~1 MB | ✅ Sí | ✅ Sí | ✅ Sí |
-| **plugins/** | ~10 MB | ✅ Sí | ⚠️ Parcial | ✅ Sí |
-| **state.db** | ~50 MB | ❌ No | ❌ No | ✅ Sí |
-| **sessions/** | ~100 MB | ❌ No | ❌ No | ✅ Sí |
-| **logs/** | ~5 MB | ❌ No | ❌ No | ✅ Sí |
-| **TOTAL** | **~200 MB** | **~70 MB** | **~60 MB** | **~200 MB** |
-
-### **Ajuste a límites gratuitos:**
-
-| Servicio | Límite Gratis | Tu Backup | Porcentaje | Estado |
-|----------|---------------|-----------|------------|---------|
-| **Google Drive** | 15,000 MB | ~70 MB | 0.5% | ✅ Excelente |
-| **GitHub** | 1,000 MB | ~60 MB | 6% | ✅ Muy bueno |
-| **AWS S3** | 5,000 MB | ~200 MB | 4% | ✅ Bueno |
-
----
-
-## 🎯 **Recomendación Personalizada**
-
-### **Para tu caso específico:**
-
-#### **🥇 RECOMENDADO: Google Drive**
-- ✅ **15 GB gratis** - Mucho espacio de sobra
-- ✅ **Fácil de configurar** - El script hace todo
-- ✅ **Incluye tus herramientas personalizadas** (meta-monitor, etc.)
-- ✅ **Acceso web** - Puedes ver tus archivos desde cualquier lugar
-
-**Razones principales:**
-1. Tu instalación completa (config + herramientas) cabe fácilmente
-2. No necesitas crear tokens ni configuraciones complejas
-3. Tienes 14,930 MB de espacio libre después del backup
-4. Puedes acceder a tus archivos desde el navegador
-
-#### **🥈 ALTERNATIVA: GitHub**
-- ✅ **1 GB gratis** - Suficiente para tu configuración
-- ✅ **Git nativo** - Versionado perfecto
-- ✅ **Más técnico** - Ideal si prefieres control total
-
-**Razones secundarias:**
-1. Tu configuración y herramientas caben en el 6% del espacio
-2. Puedes ver el historial de cambios en la web de GitHub
-3. Puedes colaborar con otros si es necesario
-
----
-
-## 🚀 **Implementación Inmediata**
-
-### **Opción A: Google Drive (Recomendada)**
 ```bash
-# Un solo comando y listo
-~/hermes-backup/backup-gdrive.sh
+# Backup entire Hermes directory
+aws s3 sync ~/.hermes s3://hermes-backup-bucket/hermes --exclude "*.db"
 ```
 
-### **Opción B: GitHub (Alternativa)**
+### 📊 **Free Tier Limits:**
+- **Storage:** 5 GB/month
+- **Requests:** 20,000 GET/month
+- **Data transfer:** 15 GB/month
+
+---
+
+## 🥉 **OPTION 4: Google Cloud Storage - 5 GB FREE (GOOD always)**
+
+### ✅ **Advantages:**
+- **5 GB free** - Always free, not limited to 12 months
+- **Fast** - Google's network
+- **Reliable** - 99.999999999% durability
+- **Easy to use** - Web console + CLI
+- **Integrates with other Google services**
+
+### ⚙️ **Setup (15 minutes):**
+
+#### **Step 1: Create GCP Project**
+
+1. Go to https://console.cloud.google.com/
+2. Create new project: `hermes-backup`
+3. Enable Cloud Storage API
+
+#### **Step 2: Create bucket**
+
 ```bash
-# Configurar token primero
-export GITHUB_TOKEN='tu_token_aqui'
-export GITHUB_REPO='tu_usuario/hermes-config-backup'
+# Install gcloud CLI
+curl https://sdk.cloud.google.com | bash
 
-# Luego ejecutar
-~/hermes-backup/backup-github.sh
+# Authenticate
+gcloud auth login
+
+# Create bucket
+gsutil mb -l us gs://hermes-backup
+```
+
+#### **Step 3: Backup command**
+
+```bash
+# Backup to GCS
+gsutil -m rsync -r ~/.hermes gs://hermes-backup/hermes
 ```
 
 ---
 
-## 📊 **Estrategia de Backup Recomendada**
+## 📋 **Comparison Summary**
 
-### **Enfoque Híbrido (Óptimo):**
-
-```
-🔄 BACKUP AUTOMÁTICO DIARIO:
-├── Local (rápido): ~/hermes-backup/ + ~/remote-backups/
-├── Externo (seguro): Google Drive (15 GB gratis)
-└── Código (versionado): GitHub (1 GB gratis)
-```
-
-**Ventajas del enfoque híbrido:**
-- ✅ **Restauración rápida** desde local
-- ✅ **Protección externa** en Google Drive
-- ✅ **Versionado perfecto** en GitHub
-- ✅ **Costo total: $0**
+| Feature | Google Drive | GitHub | AWS S3 | GCS |
+|---------|--------------|--------|--------|-----|
+| **Free Space** | 15 GB | 1 GB | 5 GB (12 mo) | 5 GB (always) |
+| **Setup Time** | 5 min | 10 min | 20 min | 15 min |
+| **Version Control** | ✅ Auto | ✅ Git | ✅ Optional | ✅ Optional |
+| **Collaboration** | ✅ | ✅ | ✅ | ✅ |
+| **Learning Curve** | Easy | Easy | Medium | Medium |
+| **Best For** | Personal use | Teams | Enterprise | Professional |
 
 ---
 
-## 💡 **Conclusión**
+## 🎯 **Recommendation: Use BOTH Google Drive + GitHub**
 
-**Para tu caso específico:**
-1. **Google Drive** es la mejor opción - 15 GB gratis, fácil, incluye todo
-2. **GitHub** es excelente segunda opción - para configuración y código
-3. **Ambos gratis** - Costo total: $0
+### **Strategy:**
+1. **Google Drive** - Daily automated backups of config and skills
+2. **GitHub** - Version control of important configs and documentation
 
-**Mi recomendación:** Empezar con **Google Drive** hoy mismo.
+### **Setup:**
 
-¿Quieres que configure Google Drive ahora?
+```bash
+# Daily backup to Google Drive (2 AM)
+0 2 * * * ~/hermes-backup/backup-gdrive.sh
+
+# Weekly push to GitHub (Sunday at 3 AM)
+0 3 * * 0 cd ~/hermes && git add . && git commit -m "Weekly backup" && git push
+```
+
+---
+
+## 💡 **Best Practices**
+
+### **1. Automate Everything**
+```bash
+# Add to crontab
+crontab -e
+
+# Daily automated backup
+0 2 * * * ~/hermes-backup/backup-gdrive.sh
+```
+
+### **2. Test Your Backups**
+```bash
+# Monthly test: restore to a temp directory
+mkdir /tmp/hermes-test
+rclone copy gdrive:hermes-backup /tmp/hermes-test
+```
+
+### **3. Monitor Storage**
+```bash
+# Check Google Drive usage
+rclone about gdrive:
+
+# Check GitHub repo size
+# Visit: https://github.com/YOUR_USERNAME/hermes-backup/settings
+```
+
+### **4. Keep Multiple Copies**
+- **Local backup** - Fast restore
+- **Google Drive** - Offsite, versioned
+- **GitHub** - Version control, collaboration
+
+---
+
+## 🚨 **What NOT to Backup**
+
+❌ **Don't backup:**
+- Large databases (> 100 MB)
+- Temporary files
+- Cache directories
+- Virtual environments
+- Node modules
+
+✅ **DO backup:**
+- Configuration files
+- Custom skills
+- Plugins
+- Documentation
+- Cron jobs
+- Important scripts
+
+---
+
+## 📞 **Support**
+
+If you need help:
+- **Google Drive**: https://support.google.com/drive
+- **GitHub**: https://docs.github.com
+- **AWS S3**: https://docs.aws.amazon.com/s3/
+- **GCS**: https://cloud.google.com/storage/docs
+
+---
+
+**Last Updated:** 2025-07-31
+**Recommended Option:** Google Drive (15 GB free)
+**Alternative:** GitHub (for version control)

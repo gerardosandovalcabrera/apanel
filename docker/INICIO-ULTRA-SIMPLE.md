@@ -1,221 +1,296 @@
-# 🚀 **INICIO ULTRA SIMPLE - APanel en Docker**
+# 🚀 **ULTRA SIMPLE STARTUP - APanel in Docker**
 
-## 🎯 **Tienes 3 opciones para iniciar APanel, elige la que prefieras:**
+## 🎯 **You have 3 options to start APanel, choose the one you prefer:**
 
 ---
 
-## 🔥 **OPCIÓN 1: UN SOLO COMANDO (MÁS FÁCIL)**
+## 🔥 **OPTION 1: ONE COMMAND (EASIEST)**
 
-### **Si quieres tener TODO funcionando con UN solo comando:**
+### **If you want EVERYTHING working with ONE command:**
 
 ```bash
-# Clonar el repo
+# Clone the repo
 git clone git@github.com:gerardosandovalcabrera/apanel.git
 cd apanel
 
-# EJECUTAR UN SOLO COMANDO:
+# EXECUTE ONE COMMAND:
 chmod +x docker/start.sh
 ./docker/start.sh
 ```
 
-**Este script hace TODO automáticamente:**
-- ✅ Verifica si Docker está instalado
-- ✅ Si no está, lo instala automáticamente
-- ✅ Descarga APanel si no lo tienes
-- ✅ Configura todo automáticamente
-- ✅ Inicia el sistema completo
-- ✅ Te muestra cómo acceder
+**This script does EVERYTHING automatically:**
+- ✅ Verifies if Docker is installed
+- ✅ If not, installs it automatically
+- ✅ Downloads APanel if you don't have it
+- ✅ Configures everything automatically
+- ✅ Starts the complete system
+- ✅ Shows you how to access
 
-**Tiempo total:** 5-10 minutos (depende de tu conexión)
+**Total time:** 5-10 minutes (depends on your connection)
 
 ---
 
-## 🛠️ **OPCIÓN 2: Auto-Installer (RECOMENDADO para servidores nuevos)**
+## 🛠️ **OPTION 2: Auto-Installer (RECOMMENDED for new servers)**
 
-### **Si tienes un servidor nuevo sin Docker:**
+### **If you have a new server without Docker:**
 
 ```bash
-# Clonar el repo
-git clone git@github.com:gerardosandovalcabrera/apanel.git
+# Clone the repo
+git clone git@github.com:gerardosandovalcabreira/apanel.git
 cd apanel/docker
 
-# EJECUTAR:
+# EXECUTE:
 chmod +x auto-install.sh
 ./auto-install.sh
 ```
 
-**Este script hace:**
-- ✅ Detecta tu sistema operativo automáticamente
-- ✅ Instala Docker si no está
-- ✅ Instala Docker Compose
-- ✅ Clona APanel si no lo tienes
-- ✅ Ejecuta la configuración automática
-- ✅ Inicia el sistema
+**This script:**
+- ✅ Automatically detects your operating system
+- ✅ Installs Docker if not present
+- ✅ Installs Docker Compose
+- ✅ Configures system settings
+- ✅ Starts APanel
 
-**Sistemas soportados:**
-- ✅ Ubuntu 18.04+
-- ✅ Debian 10+
-- ✅ CentOS 7+
-- ✅ RHEL 8+
-- ✅ Fedora 30+
+**Supported OS:**
+- ✅ Ubuntu 20.04, 22.04
+- ✅ Debian 11, 12
+- ✅ CentOS 7, 8, 9
+- ✅ RHEL 8, 9
 
-**Tiempo total:** 10-15 minutos
+**Total time:** 10-15 minutes
 
 ---
 
-## ⚡ **OPCIÓN 3: Quick Start (SI ya tienes Docker)**
+## ⚡ **OPTION 3: Quick Start (if you already have Docker)**
 
-### **Si ya tienes Docker y Docker Compose instalados:**
+### **If you already have Docker installed:**
 
 ```bash
-# Clonar el repo
-git clone git@github.com:gerardosandovalcabrera/apanel.git
+# Clone the repo
+git clone git@github.com:gerardosandovalcabreira/apanel.git
 cd apanel/docker
 
-# EJECUTAR:
+# Execute:
 chmod +x quick-start.sh
 ./quick-start.sh
 ```
 
-**Este script hace:**
-- ✅ Verifica que Docker funcione
-- ✅ Genera configuración automáticamente
-- ✅ Crea secrets aleatorios
-- ✅ Construye imágenes Docker
-- ✅ Inicia todos los contenedores
-- ✅ Te muestra cómo acceder
+**This script:**
+- ✅ Verifies Docker is running
+- ✅ Builds APanel containers
+- ✅ Starts all services
+- ✅ Shows you how to access
 
-**Tiempo total:** 3-5 minutos
+**Total time:** 3-5 minutes
 
 ---
 
-## 🎯 **Recomendación: ¿Cuál opción elegir?**
+## 🎯 **How to Access APanel**
 
-### **Sistema nuevo sin Docker:**
-```
-OPCIÓN 2: auto-install.sh
-```
-- Instala Docker automáticamente
-- Detecta tu sistema operativo
-- Todo en un solo proceso
+After running any of the scripts, you'll see:
 
-### **Sistema con Docker instalado:**
 ```
-OPCIÓN 1: start.sh
-```
-- Un solo comando para todo
-- Automático e inteligente
-- La opción más fácil
+✅ APanel is ready!
 
-### **Desarrollo local:**
+Access your dashboard:
+🌐 Web Dashboard: http://localhost:5000
+🤖 MCP Server: http://localhost:5000/mcp
+📊 Billing: http://localhost:5000/billing
+📋 Plans: http://localhost:5000/plans
+
+Login with:
+• GitHub OAuth
+• Google OAuth
+• Or configure your own auth
 ```
-OPCIÓN 3: quick-start.sh
-```
-- Asumes que Docker está instalado
-- Más control sobre el proceso
-- Ideal para desarrolladores
 
 ---
 
-## 📊 **Comparación de las 3 opciones:**
+## 🛠️ **System Requirements**
 
-| Característica | Opción 1 (start.sh) | Opción 2 (auto-install.sh) | Opción 3 (quick-start.sh) |
-|---------------|---------------------|----------------------------|---------------------------|
-| **Facilidad** | ⭐⭐⭐⭐⭐ Más fácil | ⭐⭐⭐⭐ Muy fácil | ⭐⭐⭐ Fácil |
-| **Instala Docker** | ✅ Automático | ✅ Automático | ❌ Asumido |
-| **Detecta SO** | ✅ Automático | ✅ Automático | ❌ No necesario |
-| **Tiempo total** | 5-10 min | 10-15 min | 3-5 min |
-| **Ideal para** | Cualquier caso | Servidores nuevos | Desarrollo |
-| **Requisitos** | Solo SSH | Solo SSH | Docker + Compose |
+### **Minimum Requirements:**
+- **CPU:** 2 cores
+- **RAM:** 2 GB
+- **Disk:** 10 GB
+- **OS:** Linux (Ubuntu, Debian, CentOS, RHEL)
+
+### **Recommended Requirements:**
+- **CPU:** 4 cores
+- **RAM:** 4 GB
+- **Disk:** 20 GB
+- **OS:** Ubuntu 22.04 LTS
 
 ---
 
-## 🚀 **EJEMPLO COMPLETO - Desde cero hasta funcionando:**
+## 🔧 **After First Startup**
 
-### **En un servidor nuevo (Ubuntu 20.04):**
+### **1. Configure Authentication**
 
 ```bash
-# 1. Conectarte al servidor
-ssh usuario@tu-servidor.com
+# Edit environment variables
+cd ~/apanel/docker
+nano .env
 
-# 2. UN SOLO COMANDO:
-git clone git@github.com:gerardosandovalcabrera/apanel.git && cd apanel && chmod +x docker/start.sh && ./docker/start.sh
-
-# 3. ¡LISTO! APanel está funcionando en http://tu-servidor.com:5000
+# Add your OAuth credentials:
+OAUTH_GITHUB_CLIENT_ID='your-github-client-id'
+OAUTH_GITHUB_CLIENT_SECRET='your-github-client-secret'
+OAUTH_GOOGLE_CLIENT_ID='your-google-client-id'
+OAUTH_GOOGLE_CLIENT_SECRET='your-google-client-secret'
 ```
 
-### **En tu máquina local (con Docker):**
+### **2. Create OAuth Apps**
+
+**For GitHub:**
+1. Go to https://github.com/settings/developers
+2. Create "New OAuth App"
+3. Set callback: `http://localhost:5000/auth/github/callback`
+
+**For Google:**
+1. Go to https://console.cloud.google.com/
+2. Create "OAuth 2.0 Client IDs"
+3. Set redirect: `http://localhost:5000/auth/google/callback`
+
+### **3. Restart the System**
 
 ```bash
-# 1. Clonar
-git clone git@github.com:gerardosandovalcabrera/apanel.git
-cd apanel
-
-# 2. UN COMANDO:
-chmod +x docker/start.sh && ./docker/start.sh
-
-# 3. ¡LISTO! http://localhost:5000
+./start.sh restart
 ```
 
 ---
 
-## 🎁 **Lo que hacen automáticamente estos scripts:**
+## 📊 **What Gets Installed**
 
-### **✅ No necesitas hacer:**
-- ❌ Instalar Docker manualmente
-- ❌ Configurar variables de entorno
-- ❌ Generar secrets
-- ❌ Crear directorios
-- ❌ Construir imágenes
-- ❌ Iniciar contenedores manualmente
-- ❌ Configurar redes Docker
-- ❌ Verificar que todo funcione
+### **Services Started:**
+- ✅ **Flask Web Dashboard** (port 5000)
+- ✅ **Redis Cache** (port 6379)
+- ✅ **MCP Server** (port 5000/mcp)
+- ✅ **Billing System** (integrated)
+- ✅ **Plans & Limits** (integrated)
 
-### **🎯 Solo necesitas:**
-- ✅ Acceso al servidor (SSH)
-- ✅ Permisos de sudo (para instalar Docker)
-- ✅ Conexión a internet
+### **Features Available:**
+- ✅ Multi-agent management
+- ✅ Real-time cost tracking
+- ✅ Budget monitoring
+- ✅ Plan management
+- ✅ Security (OAuth, JWT, RBAC)
+- ✅ API for integrations
 
 ---
 
-## 🔧 **Después del inicio automático:**
+## 🐛 **Troubleshooting**
 
-### **El sistema estará disponible en:**
-
-```
-📊 Dashboard Web:     http://localhost:5000/ (o http://tu-servidor:5000/)
-🤖 MCP Server:       http://localhost:5000/mcp/
-🔐 Auth Providers:    http://localhost:5000/auth/providers
-📚 Documentación:     http://localhost:5000/docs
-```
-
-### **Comandos útiles:**
+### **Problem: Docker not found**
 
 ```bash
-# Ver logs
-docker-compose logs -f
+# Install Docker manually
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+```
 
-# Ver estado
-docker-compose ps
+### **Problem: Port 5000 already in use**
 
-# Reiniciar
-docker-compose restart
+```bash
+# Find what's using the port
+sudo lsof -i :5000
 
-# Detener
-docker-compose down
+# Kill the process (if needed)
+sudo kill -9 <PID>
 
-# Actualizar
-git pull && docker-compose up -d --build
+# Or use a different port
+# Edit docker-compose.yml and change port mapping
+```
+
+### **Problem: Cannot access dashboard**
+
+```bash
+# Check if containers are running
+docker ps
+
+# View logs
+docker logs apanel-dashboard
+
+# Check firewall
+sudo ufw status
 ```
 
 ---
 
-## 🎉 **¡En cuestión de minutos tendrás APanel funcionando!**
+## 🚀 **Next Steps**
 
-Elige la opción que mejor se adapte a tu situación y ejecuta un solo comando.
+### **For Development:**
+1. ✅ Read the [README.md](../README.md)
+2. ✅ Explore the [docker/README.md](./README.md)
+3. ✅ Check the [API documentation](http://localhost:5000/docs)
 
-**¿Prefieres la opción 1, 2 o 3?**
+### **For Production:**
+1. ✅ Configure HTTPS with Let's Encrypt
+2. ✅ Set up firewall rules
+3. ✅ Configure automated backups
+4. ✅ Set up monitoring and alerts
+5. ✅ Review security best practices
+
+### **For Customization:**
+1. ✅ Explore the code structure
+2. ✅ Modify the dashboard (templates/)
+3. ✅ Add custom skills
+4. ✅ Configure billing rules
+5. ✅ Set up custom plans
 
 ---
 
-**P.D.: Si algo falla, los scripts tienen mensajes de error claros que te indicarán qué hacer.**
+## 💡 **Tips**
+
+### **1. Use Auto-Start**
+```bash
+# Add to crontab for auto-start on boot
+@reboot /home/user/apanel/docker/start.sh start
+```
+
+### **2. Regular Updates**
+```bash
+# Update APanel regularly
+cd ~/apanel
+git pull origin main
+cd docker
+./start.sh restart
+```
+
+### **3. Monitor Resources**
+```bash
+# Check container resources
+docker stats
+
+# View logs
+docker logs -f apanel-dashboard
+```
+
+---
+
+## 📞 **Support**
+
+If you encounter issues:
+
+1. **Check logs:** `docker logs apanel-dashboard`
+2. **Verify Docker:** `docker --version`
+3. **Check ports:** `sudo netstat -tuln | grep 5000`
+4. **Review documentation:** [README.md](../README.md)
+
+---
+
+## 🎉 **You're Ready!**
+
+APanel is now running with:
+- 🤖 Multi-agent management
+- 💰 Cost tracking & billing
+- 📋 Plans & limits
+- 🔐 Professional security
+- 🎨 Beautiful dashboard
+
+**Start exploring at:** http://localhost:5000
+
+---
+
+**Last Updated:** 2025-07-31
+**Version:** 1.0.0
+**Status:** ✅ Ready to use

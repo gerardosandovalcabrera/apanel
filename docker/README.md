@@ -1,215 +1,215 @@
 # 🐳 Hermes Multi-Agent Docker System
 
-Sistema completo de administración multi-agente de Hermes basado en Docker para despliegue en múltiples ubicaciones.
+Complete Hermes multi-agent management system based on Docker for deployment across multiple locations.
 
-## 🏛️ Arquitectura
+## 🏛️ Architecture
 
 ```
-🌐 Dashboard Central (Tu servidor principal)
+🌐 Central Dashboard (Your main server)
 ├── Docker Container: hermes-dashboard
-│   ├── Dashboard Web Flask (puerto 5000)
-│   ├── Redis para caché (puerto 6379)
-│   └── Nginx Reverse Proxy (puerto 80/443)
+│   ├── Flask Web Dashboard (port 5000)
+│   ├── Redis for cache (port 6379)
+│   └── Nginx Reverse Proxy (port 80/443)
 │
-🔗 Agentes Remotos (Otros servidores con Hermes)
-├── Docker Container: hermes-connector (en cada servidor)
-│   ├── API de health check (puerto 8081)
-│   ├── Telemetría en tiempo real
-│   ├── Comandos remotos
-│   └── Autenticación con API Key
+🔗 Remote Agents (Other servers with Hermes)
+├── Docker Container: hermes-connector (on each server)
+│   ├── Health check API (port 8081)
+│   ├── Real-time telemetry
+│   ├── Remote commands
+│   └── Authentication with API Key
 │
-🌐 Network Docker
-├── Comunicación segura entre dashboard y conectores
-└── Soporte para múltiples redes remotas
+🌐 Docker Network
+├── Secure communication between dashboard and connectors
+└── Support for multiple remote networks
 ```
 
-## 📋 Requisitos
+## 📋 Requirements
 
-### **Para el Dashboard Central:**
+### **For the Central Dashboard:**
 - Docker 20.10+
 - Docker Compose 2.0+
-- 2 GB RAM mínimo
-- 10 GB disco mínimo
-- Puertos disponibles: 80, 443, 5000, 6379
+- 2 GB RAM minimum
+- 10 GB disk minimum
+- Available ports: 80, 443, 5000, 6379
 
-### **Para Agentes Remotos:**
+### **For Remote Agents:**
 - Docker 20.10+
 - Docker Compose 2.0+
-- 512 MB RAM mínimo
-- 2 GB disco mínimo
-- Hermes Agent instalado en el host
-- Puerto 8081 disponible
-- Acceso SSH desde el dashboard
+- 512 MB RAM minimum
+- 2 GB disk minimum
+- Hermes Agent installed on host
+- Port 8081 available
+- SSH access from the dashboard
 
-## 🚀 Instalación Rápida
+## 🚀 Quick Installation
 
-### **Paso 1: Clonar y configurar el Dashboard Central**
+### **Step 1: Clone and configure the Central Dashboard**
 
 ```bash
-# Copiar los archivos Docker al servidor central
+# Copy Docker files to central server
 scp -r docker/* user@dashboard-server:/opt/hermes-docker/
 
-# Conectarte al servidor central
+# Connect to central server
 ssh user@dashboard-server
 
-# Ir al directorio de Docker
+# Go to Docker directory
 cd /opt/hermes-docker
 
-# Inicializar el sistema
+# Initialize system
 chmod +x deploy-hermes-docker.sh
 ./deploy-hermes-docker.sh init
 
-# Iniciar el Dashboard
+# Start Dashboard
 ./deploy-hermes-docker.sh start
 ```
 
-### **Paso 2: Desplegar Conectores Remotos**
+### **Step 2: Deploy Remote Connectors**
 
 ```bash
-# Desde el servidor central, desplegar conectores en otros servidores
+# From central server, deploy connectors to other servers
 ./deploy-hermes-docker.sh connector remote-server.com user
 
-# El script automáticamente:
-# 1. Copia los archivos necesarios al servidor remoto
-# 2. Configura la conexión al dashboard central
-# 3. Construye e inicia el connector Docker
-# 4. Registra el agente en el dashboard
+# The script automatically:
+# 1. Copies necessary files to remote server
+# 2. Configures connection to central dashboard
+# 3. Builds and starts connector Docker
+# 4. Registers agent in dashboard
 ```
 
-### **Paso 3: Acceder al Dashboard**
+### **Step 3: Access Dashboard**
 
 ```
 http://dashboard-server:5000
 ```
 
-## 📖 Comandos del Sistema
+## 📖 System Commands
 
-### **Gestión del Dashboard Central:**
+### **Central Dashboard Management:**
 
 ```bash
-# Inicializar sistema (primera vez)
+# Initialize system (first time)
 ./deploy-hermes-docker.sh init
 
-# Iniciar Dashboard
+# Start Dashboard
 ./deploy-hermes-docker.sh start
 
-# Detener Dashboard
+# Stop Dashboard
 ./deploy-hermes-docker.sh stop
 
-# Reiniciar Dashboard
+# Restart Dashboard
 ./deploy-hermes-docker.sh restart
 
-# Ver estado
+# Check status
 ./deploy-hermes-docker.sh status
 
-# Ver logs en tiempo real
+# View real-time logs
 ./deploy-hermes-docker.sh logs
 ```
 
-### **Gestión de Conectores Remotos:**
+### **Remote Connector Management:**
 
 ```bash
-# Desplegar connector en servidor remoto
+# Deploy connector to remote server
 ./deploy-hermes-docker.sh connector <host> <user>
 
-# Ejemplo:
+# Example:
 ./deploy-hermes-docker.sh connector production-server.com admin
 ./deploy-hermes-docker.sh connector 192.168.1.100 user
 
-# El connector se registra automáticamente en el dashboard
+# Connector is automatically registered in dashboard
 ```
 
-## 🔧 Configuración
+## 🔧 Configuration
 
-### **Variables de Entorno del Dashboard:**
+### **Dashboard Environment Variables:**
 
-Archivo: `config/dashboard.env`
+File: `config/dashboard.env`
 
 ```bash
-# Configuración Flask
+# Flask Configuration
 FLASK_ENV=production
-DASHBOARD_SECRET_KEY=<secreto-aleatorio-generado>
+DASHBOARD_SECRET_KEY=<random-generated-secret>
 
 # Redis
 REDIS_URL=redis://redis:6379/0
 
-# Seguridad
-CONNECTOR_API_KEY=<api-key-generada>
+# Security
+CONNECTOR_API_KEY=<generated-api-key>
 ALLOWED_ORIGINS=*
 ```
 
-### **Variables de Entorno del Connector:**
+### **Connector Environment Variables:**
 
-Archivo: `~/hermes-connector/.env` (en servidor remoto)
+File: `~/hermes-connector/.env` (on remote server)
 
 ```bash
-# Conexión al Dashboard
+# Dashboard Connection
 DASHBOARD_URL=http://dashboard-server:5000
-CONNECTOR_API_KEY=<misma-api-key-del-dashboard>
+CONNECTOR_API_KEY=<same-api-key-as-dashboard>
 
-# Información del Agente
+# Agent Information
 AGENT_NAME=agent-production-server
 AGENT_HOST=production-server.com
 HERMES_PORT=8080
 AGENT_TYPE=remote
 ```
 
-## 🌐 Arquitectura de Redes
+## 🌐 Network Architecture
 
-### **Comunicación Dashboard ↔ Connector:**
+### **Dashboard ↔ Connector Communication:**
 
 ```
-Dashboard Central (192.168.1.10)
-├── Puerto 5000: Dashboard Web
-├── Puerto 8081: No usado (solo conectores)
+Central Dashboard (192.168.1.10)
+├── Port 5000: Web Dashboard
+├── Port 8081: Not used (connectors only)
 └── Docker Network: 172.20.0.0/16
 
-Connector Remoto 1 (192.168.1.20)
-├── Puerto 8081: API del Connector
-├── Monta ~/.hermes del host
-└── Se conecta a Dashboard:5000
+Remote Connector 1 (192.168.1.20)
+├── Port 8081: Connector API
+├── Mounts ~/.hermes from host
+└── Connects to Dashboard:5000
 
-Connector Remoto 2 (192.168.1.30)
-├── Puerto 8081: API del Connector
-├── Monta ~/.hermes del host
-└── Se conecta a Dashboard:5000
+Remote Connector 2 (192.168.1.30)
+├── Port 8081: Connector API
+├── Mounts ~/.hermes from host
+└── Connects to Dashboard:5000
 ```
 
-### **Flujo de Registro:**
+### **Registration Flow:**
 
-1. **Connector inicia** → Se conecta al Dashboard
-2. **Envía registro** → Con su información y API key
-3. **Dashboard valida** → Verifica API key
-4. **Dashboard acepta** → Agente aparece en el dashboard
-5. **Heartbeat periódico** → Cada 60 segundos
+1. **Connector starts** → Connects to Dashboard
+2. **Sends registration** → With its info and API key
+3. **Dashboard validates** → Verifies API key
+4. **Dashboard accepts** → Agent appears in dashboard
+5. **Periodic heartbeat** → Every 60 seconds
 
-## 🔒 Seguridad
+## 🔒 Security
 
-### **Autenticación:**
-- **API Key** generada aleatoriamente
-- **Header `X-API-Key`** en todas las requests
-- **Validación en cada endpoint**
+### **Authentication:**
+- **API Key** randomly generated
+- **Header `X-API-Key`** in all requests
+- **Validation on every endpoint**
 
-### **Comunicación:**
-- **HTTP** por defecto (puedes agregar HTTPS con Nginx)
-- **Firewall recomendado:** Solo puertos necesarios
-- **VPN recomendada** para redes públicas
+### **Communication:**
+- **HTTP** by default (you can add HTTPS with Nginx)
+- **Recommended firewall:** Only necessary ports
+- **VPN recommended** for public networks
 
-### **Recursos del Host:**
-- **Lectura de `~/.hermes`** (solo lectura)
-- **Ejecución de comandos limitada**
-- **Usuario no-root dentro del contenedor**
+### **Host Resources:**
+- **Read-only `~/.hermes`**
+- **Limited command execution**
+- **Non-root user inside container**
 
-## 📊 API del Connector
+## 📊 Connector API
 
-El connector expone una API para que el Dashboard lo monitoree:
+The connector exposes an API for the Dashboard to monitor it:
 
 ### **GET /health**
 ```bash
-curl -H "X-API-Key: <api-key>" http://connector-host:8081/health
+curl -H "X-API-Key: ***" http://connector-host:8081/health
 ```
 
-Respuesta:
+Response:
 ```json
 {
   "status": "healthy",
@@ -233,172 +233,172 @@ Respuesta:
 ### **POST /restart**
 ```bash
 curl -X POST \
-  -H "X-API-Key: <api-key>" \
+  -H "X-API-Key: ***" \
   http://connector-host:8081/restart
 ```
 
 ### **GET /logs**
 ```bash
-curl -H "X-API-Key: <api-key>" \
+curl -H "X-API-Key: ***" \
   "http://connector-host:8081/logs?lines=100"
 ```
 
-## 🎯 Casos de Uso
+## 🎯 Use Cases
 
-### **Caso 1: Desarrollo Local + Servidor de Producción**
+### **Case 1: Local Development + Production Server**
 
 ```bash
-# Dashboard en tu máquina local (para testing)
+# Dashboard on your local machine (for testing)
 ./deploy-hermes-docker.sh init
 ./deploy-hermes-docker.sh start
 
-# Connector en servidor de producción
+# Connector on production server
 ./deploy-hermes-docker.sh connector production.com admin
 ```
 
-### **Caso 2: Múltiples Servidores de Producción**
+### **Case 2: Multiple Production Servers**
 
 ```bash
-# Dashboard en servidor dedicado de monitoreo
+# Dashboard on dedicated monitoring server
 ssh admin@monitoring-server.com
 cd /opt/hermes-docker
 ./deploy-hermes-docker.sh init
 ./deploy-hermes-docker.sh start
 
-# Conectores en múltiples servidores
+# Connectors on multiple servers
 ./deploy-hermes-docker.sh connector server1.prod.com admin
 ./deploy-hermes-docker.sh connector server2.prod.com admin
 ./deploy-hermes-docker.sh connector server3.prod.com admin
 ```
 
-### **Caso 3: Nube + On-Premise**
+### **Case 3: Cloud + On-Premise**
 
 ```bash
-# Dashboard en nube (AWS, GCP, Azure)
+# Dashboard in cloud (AWS, GCP, Azure)
 ./deploy-hermes-docker.sh init
 ./deploy-hermes-docker.sh start
 
-# Connector en servidores on-premise
+# Connectors on on-premise servers
 ./deploy-hermes-docker.sh connector on-premise-1.local user
 ./deploy-hermes-docker.sh connector on-premise-2.local user
 ```
 
 ## 🐛 Troubleshooting
 
-### **Problema: Connector no se registra**
+### **Problem: Connector not registering**
 
 ```bash
-# Ver logs del connector en el servidor remoto
+# View connector logs on remote server
 ssh user@remote-server
 docker logs -f hermes-connector
 
-# Verificar que el Dashboard es accesible
+# Verify Dashboard is accessible
 curl http://dashboard-server:5000/api/metrics
 
-# Verificar API key coincide
+# Verify API key matches
 grep CONNECTOR_API_KEY ~/hermes-connector/.env
 ```
 
-### **Problema: No se puede acceder al Dashboard**
+### **Problem: Cannot access Dashboard**
 
 ```bash
-# Verificar que el contenedor está corriendo
+# Verify container is running
 docker ps | grep hermes-dashboard
 
-# Ver logs del Dashboard
+# View Dashboard logs
 docker logs hermes-dashboard
 
-# Verificar puertos
+# Verify ports
 netstat -tuln | grep 5000
 ```
 
-### **Problema: Heartbeat falla**
+### **Problem: Heartbeat failing**
 
 ```bash
-# Verificar conectividad de red
+# Check network connectivity
 ping dashboard-server
 telnet dashboard-server 5000
 
-# Verificar firewall
+# Check firewall
 sudo ufw status
 sudo firewall-cmd --list-all
 ```
 
-## 📈 Monitoreo y Logs
+## 📈 Monitoring and Logs
 
-### **Logs del Dashboard Central:**
+### **Central Dashboard Logs:**
 ```bash
-# Ver logs en tiempo real
+# View real-time logs
 docker logs -f hermes-dashboard
 
-# Ver logs de todos los servicios
+# View all service logs
 docker-compose logs -f
 ```
 
-### **Logs de Conectores Remotos:**
+### **Remote Connector Logs:**
 ```bash
-# En el servidor remoto
+# On remote server
 ssh user@remote-server
 docker logs -f hermes-connector
 
-# Ver logs específicos
+# View specific logs
 docker logs hermes-connector | grep ERROR
 docker logs hermes-connector | grep heartbeat
 ```
 
-## 🚀 Actualización del Sistema
+## 🚀 System Update
 
-### **Actualizar Dashboard Central:**
+### **Update Central Dashboard:**
 ```bash
-# Parar servicios
+# Stop services
 ./deploy-hermes-docker.sh stop
 
-# Actualizar código
-git pull  # o copiar nuevos archivos
+# Update code
+git pull  # or copy new files
 
-# Reconstruir imágenes
+# Rebuild images
 ./deploy-hermes-docker.sh init
 
-# Iniciar servicios
+# Start services
 ./deploy-hermes-docker.sh start
 ```
 
-### **Actualizar Conectores Remotos:**
+### **Update Remote Connectors:**
 ```bash
-# El script de deploy actualiza automáticamente
+# Deploy script updates automatically
 ./deploy-hermes-docker.sh connector remote-server.com user
 ```
 
-## 💡 Mejores Prácticas
+## 💡 Best Practices
 
-### **Seguridad:**
-1. ✅ Usar VPN para comunicación entre servidores
-2. ✅ Cambiar API keys periódicamente
-3. ✅ Usar HTTPS en producción (configurar Nginx)
-4. ✅ Limitar acceso con firewall
-5. ✅ Usar usuarios no-root para SSH
+### **Security:**
+1. ✅ Use VPN for server-to-server communication
+2. ✅ Change API keys periodically
+3. ✅ Use HTTPS in production (configure Nginx)
+4. ✅ Limit access with firewall
+5. ✅ Use non-root users for SSH
 
-### **Monitoreo:**
-1. ✅ Configurar alertas en el Dashboard
-2. ✅ Revisar logs periódicamente
-3. ✅ Monitorear recursos de los contenedores
-4. ✅ Configurar backups automáticos
+### **Monitoring:**
+1. ✅ Configure alerts in Dashboard
+2. ✅ Review logs periodically
+3. ✅ Monitor container resources
+4. ✅ Configure automatic backups
 
-### **Escalabilidad:**
-1. ✅ Usar Redis cluster para muchos agentes
-2. ✅ Balancear carga con múltiples dashboards
-3. ✅ Usar Nginx para HTTPS y caching
-4. ✅ Configurar health checks agresivos
+### **Scalability:**
+1. ✅ Use Redis cluster for many agents
+2. ✅ Load balance with multiple dashboards
+3. ✅ Use Nginx for HTTPS and caching
+4. ✅ Configure aggressive health checks
 
-## 📞 Soporte
+## 📞 Support
 
-Si encuentras problemas:
+If you encounter issues:
 
-1. Revisa los logs del contenedor
-2. Verifica la conectividad de red
-3. Confirma que los puertos están disponibles
-4. Valida que las API keys coinciden
+1. Review container logs
+2. Check network connectivity
+3. Confirm ports are available
+4. Validate API keys match
 
 ---
 
-**🎉 Sistema creado específicamente para administración multi-agente de Hermes con Docker**
+**🎉 System created specifically for Hermes multi-agent management with Docker**
