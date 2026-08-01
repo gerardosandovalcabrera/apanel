@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -204,45 +204,45 @@
     <div class="container">
         <div class="header">
             <h1>💰 Billing Dashboard</h1>
-            <p>Costos en tiempo real, alertas de presupuesto y optimizaciones</p>
+            <p>Real-time costs, budget alerts, and optimizations</p>
         </div>
         
-        <button class="refresh-btn" onclick="refreshData()">🔄 Actualizar datos</button>
+        <button class="refresh-btn" onclick="refreshData()">🔄 Refresh Data</button>
         
         <div class="stats-grid">
             <div class="stat-card">
-                <h3>💸 Costo Total (Mes)</h3>
+                <h3>💸 Total Cost (Month)</h3>
                 <div class="value" id="totalCost">$0.00</div>
-                <div class="trend" id="costTrend">↑ 0% vs mes anterior</div>
+                <div class="trend" id="costTrend">↑ 0% vs last month</div>
             </div>
             
             <div class="stat-card">
-                <h3>🪙 Tokens Usados</h3>
+                <h3>🪙 Tokens Used</h3>
                 <div class="value" id="totalTokens">0</div>
-                <div class="trend" id="tokensTrend">↑ 0% vs mes anterior</div>
+                <div class="trend" id="tokensTrend">↑ 0% vs last month</div>
             </div>
             
             <div class="stat-card" id="budgetCard">
-                <h3>💵 Presupuesto</h3>
+                <h3>💵 Budget</h3>
                 <div class="value" id="budgetUsed">$0 / $0</div>
-                <div class="trend" id="budgetPercentage">0% usado</div>
+                <div class="trend" id="budgetPercentage">0% used</div>
             </div>
             
             <div class="stat-card">
-                <h3>📞 Llamadas Totales</h3>
+                <h3>📞 Total Calls</h3>
                 <div class="value" id="totalCalls">0</div>
-                <div class="trend" id="callsTrend">↑ 0% vs mes anterior</div>
+                <div class="trend" id="callsTrend">↑ 0% vs last month</div>
             </div>
         </div>
         
         <div class="charts-section">
             <div class="chart-card">
-                <h3>💸 Costos por Modelo</h3>
+                <h3>💸 Costs by Model</h3>
                 <canvas id="costByModelChart"></canvas>
             </div>
             
             <div class="chart-card">
-                <h3>📊 Tokens por Modelo</h3>
+                <h3>📊 Tokens by Model</h3>
                 <canvas id="tokensByModelChart"></canvas>
             </div>
         </div>
