@@ -1,17 +1,17 @@
 """
 💰 Cost Tracking Module - APanel
-Basado en la arquitectura de Helicone
+Based on Helicone architecture
 
-Este módulo implementa:
-1. Model Registry con O(1) lookups
+This module implements:
+1. Model Registry with O(1) lookups
 2. Cost Calculation Engine
 3. Multi-provider support (OpenAI, Anthropic, etc.)
-4. Token counting por tipo
-5. Price updates automáticos
-6. Cost breakdown detallado
+4. Token counting by type
+5. Automatic price updates
+6. Detailed cost breakdown
 
-Autor: Hermes Agent System
-Basado en: Helicone (Apache 2.0)
+Author: Hermes Agent System
+Based on: Helicone (Apache 2.0)
 """
 
 from dataclasses import dataclass, asdict
@@ -23,7 +23,7 @@ from decimal import Decimal
 
 
 class ProviderName(Enum):
-    """Nombres de proveedores soportados"""
+    """Supported provider names"""
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     GOOGLE = "google"
@@ -33,27 +33,27 @@ class ProviderName(Enum):
 
 
 class TokenType(Enum):
-    """Tipos de tokens con diferentes precios"""
-    PROMPT = "prompt"                    # Tokens de entrada
-    COMPLETION = "completion"            # Tokens de salida
-    PROMPT_CACHE_WRITE = "prompt_cache_write"  # Cache write (nuevo)
+    """Token types with different prices"""
+    PROMPT = "prompt"                    # Input tokens
+    COMPLETION = "completion"            # Output tokens
+    PROMPT_CACHE_WRITE = "prompt_cache_write"  # Cache write (new)
     PROMPT_CACHE_READ = "prompt_cache_read"    # Cache read
-    IMAGE = "image"                      # Imágenes (DALL-E)
+    IMAGE = "image"                      # Images (DALL-E)
     AUDIO_INPUT = "audio_input"          # Whisper
     AUDIO_OUTPUT = "audio_output"        # TTS
 
 
 @dataclass
 class ModelPricing:
-    """Precios de un modelo por tipo de token"""
-    prompt_price_per_1k: Decimal        # Precio por 1000 tokens de prompt
-    completion_price_per_1k: Decimal    # Precio por 1000 tokens de completion
+    """Prices for a model by token type"""
+    prompt_price_per_1k: Decimal        # Price per 1000 prompt tokens
+    completion_price_per_1k: Decimal    # Price per 1000 completion tokens
     prompt_cache_write_price_per_1k: Optional[Decimal] = None  # Cache write
     prompt_cache_read_price_per_1k: Optional[Decimal] = None   # Cache read
     image_price_per_1k: Optional[Decimal] = None
     audio_input_price_per_1k: Optional[Decimal] = None
     audio_output_price_per_1k: Optional[Decimal] = None
-    per_call_price: Optional[Decimal] = None  # Precio fijo por llamada
+    per_call_price: Optional[Decimal] = None  # Fixed price per call
     
     def to_dict(self) -> Dict:
         return asdict(self)
@@ -61,13 +61,13 @@ class ModelPricing:
 
 @dataclass
 class ModelConfig:
-    """Configuración completa de un modelo"""
+    """Complete configuration for a model"""
     provider_model_id: str          # "openai/gpt-4"
     provider: ProviderName          # "openai"
     display_name: str               # "GPT-4"
     pricing: ModelPricing
-    context_length: int             # 128000 (tokens máximos de contexto)
-    max_completion_tokens: int      # 4096 (tokens máximos de respuesta)
+    context_length: int             # 128000 (maximum context tokens)
+    max_completion_tokens: int      # 4096 (maximum response tokens)
     supports_function_calling: bool = False
     supports_vision: bool = False
     supports_audio: bool = False

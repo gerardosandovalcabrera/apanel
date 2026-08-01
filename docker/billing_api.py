@@ -1,6 +1,6 @@
 """
 🔌 Billing API Endpoints - APanel
-API REST para el sistema de billing integrado
+REST API for the integrated billing system
 """
 
 from flask import Blueprint, request, jsonify, g
@@ -9,15 +9,15 @@ from datetime import datetime
 
 billing_bp = Blueprint('billing', __name__, url_prefix='/api/billing')
 
-# Importar el sistema de billing (en producción, desde un módulo real)
-# Por ahora usamos el demo
+# Import billing system (in production, from a real module)
+# For now we use the demo
 from demo_billing_simple import BillingIntegrationDemo
 
 # Singleton instance
 _billing_instance = None
 
 def get_billing_system():
-    """Obtener instancia del sistema de billing"""
+    """Get billing system instance"""
     global _billing_instance
     if _billing_instance is None:
         _billing_instance = BillingIntegrationDemo()
@@ -27,7 +27,7 @@ def get_billing_system():
 @billing_bp.route('/summary', methods=['GET'])
 def get_billing_summary():
     """
-    Obtener resumen completo de billing
+    Get complete billing summary
     
     Response:
     {
@@ -41,7 +41,7 @@ def get_billing_summary():
     try:
         billing = get_billing_system()
         
-        # En producción, organization_id vendría del JWT token
+        # In production, organization_id would come from JWT token
         organization_id = g.get('organization_id', 'demo-org-billing')
         
         summary = billing.get_billing_summary(organization_id)
@@ -60,7 +60,7 @@ def get_billing_summary():
 @billing_bp.route('/record-call', methods=['POST'])
 def record_api_call():
     """
-    Registrar una llamada a la API
+    Register an API call
     
     Request:
     {
@@ -87,7 +87,7 @@ def record_api_call():
         if not provider_model_id:
             return jsonify({
                 "success": False,
-                "error": "provider_model_id es requerido"
+                "error": "provider_model_id is required"
             }), 400
         
         billing = get_billing_system()
@@ -117,7 +117,7 @@ def record_api_call():
 @billing_bp.route('/create-budget', methods=['POST'])
 def create_budget():
     """
-    Crear un presupuesto
+    Create a budget
     
     Request:
     {
@@ -136,7 +136,7 @@ def create_budget():
         if not name or monthly_budget is None:
             return jsonify({
                 "success": False,
-                "error": "name y monthly_budget son requeridos"
+                "error": "name and monthly_budget are required"
             }), 400
         
         billing = get_billing_system()
@@ -150,7 +150,7 @@ def create_budget():
         
         return jsonify({
             "success": True,
-            "message": f"Presupuesto '{name}' creado exitosamente"
+            "message": f"Budget '{name}' created successfully"
         })
     except Exception as e:
         return jsonify({
@@ -162,7 +162,7 @@ def create_budget():
 @billing_bp.route('/cost-estimate', methods=['POST'])
 def estimate_cost():
     """
-    Estimar costo antes de hacer una llamada
+    Estimate cost before making a call
     
     Request:
     {
@@ -190,7 +190,7 @@ def estimate_cost():
         if not provider_model_id:
             return jsonify({
                 "success": False,
-                "error": "provider_model_id es requerido"
+                "error": "provider_model_id is required"
             }), 400
         
         calculator = get_calculator()
@@ -205,7 +205,7 @@ def estimate_cost():
         if not cost_breakdown:
             return jsonify({
                 "success": False,
-                "error": "Modelo no encontrado"
+                "error": "Model not found"
             }), 404
         
         return jsonify({
@@ -221,26 +221,26 @@ def estimate_cost():
 
 
 def register_billing_blueprint(app):
-    """Registrar el blueprint de billing en la app Flask"""
+    """Register billing blueprint in Flask app"""
     app.register_blueprint(billing_bp)
     
-    # Middleware para inyectar organization_id
+    # Middleware to inject organization_id
     @app.before_request
     def inject_org_id():
-        g.organization_id = 'demo-org-billing'  # En producción, del JWT
+        g.organization_id = 'demo-org-billing'  # In production, from JWT
 
 
 if __name__ == "__main__":
-    # Test de los endpoints
+    # Test the endpoints
     from flask import Flask
     app = Flask(__name__)
     register_billing_blueprint(app)
     
     with app.test_client() as client:
-        print("🧪 Test de Billing API:")
+        print("🧪 Test of Billing API:")
         
-        # Test 1: Crear presupuesto
-        print("\n1. Creando presupuesto...")
+        # Test 1: Create budget
+        print("\n1. Creating budget...")
         response = client.post('/api/billing/create-budget', json={
             "name": "Test Budget",
             "monthly_budget": 100.00
@@ -250,8 +250,8 @@ if __name__ == "__main__":
         if data.get('success'):
             print(f"   ✅ {data['message']}")
         
-        # Test 2: Estimar costo
-        print("\n2. Estimando costo...")
+        # Test 2: Estimate cost
+        print("\n2. Estimating cost...")
         response = client.post('/api/billing/cost-estimate', json={
             "provider_model_id": "openai/gpt-4o",
             "prompt_tokens": 1000,
@@ -260,10 +260,10 @@ if __name__ == "__main__":
         print(f"   Status: {response.status_code}")
         data = response.get_json()
         if data.get('success'):
-            print(f"   ✅ Costo estimado: ${data['estimated_cost']:.6f}")
+            print(f"   ✅ Estimated cost: ${data['estimated_cost']:.6f}")
         
-        # Test 3: Registrar llamada
-        print("\n3. Registrando llamada...")
+        # Test 3: Record call
+        print("\n3. Recording call...")
         response = client.post('/api/billing/record-call', json={
             "provider_model_id": "openai/gpt-4o",
             "prompt_tokens": 1000,
@@ -272,23 +272,23 @@ if __name__ == "__main__":
         print(f"   Status: {response.status_code}")
         data = response.get_json()
         if data.get('success'):
-            print(f"   ✅ Costo: ${data['cost']:.6f}, Tokens: {data['tokens']}")
+            print(f"   ✅ Cost: ${data['cost']:.6f}, Tokens: {data['tokens']}")
         
-        # Test 4: Obtener resumen
-        print("\n4. Obteniendo resumen de billing...")
+        # Test 4: Get summary
+        print("\n4. Getting billing summary...")
         response = client.get('/api/billing/summary')
         print(f"   Status: {response.status_code}")
         data = response.get_json()
         if data.get('success'):
             summary = data['data']
             cost_summary = summary['cost_summary']
-            print(f"   ✅ Costo total: ${cost_summary['total_cost']:.6f}")
+            print(f"   ✅ Total cost: ${cost_summary['total_cost']:.6f}")
             print(f"   ✅ Tokens: {cost_summary['total_tokens']:,}")
-            print(f"   ✅ Llamadas: {cost_summary['calls_count']}")
+            print(f"   ✅ Calls: {cost_summary['calls_count']}")
             
             if summary['budget_status']:
                 budget = summary['budget_status']
-                print(f"   💵 Presupuesto: ${budget['current_spent']:.2f} / ${budget['monthly_budget']:.2f}")
-                print(f"   💵 Porcentaje: {budget['percentage_used']:.1f}%")
+                print(f"   💵 Budget: ${budget['current_spent']:.2f} / ${budget['monthly_budget']:.2f}")
+                print(f"   💵 Percentage: {budget['percentage_used']:.1f}%")
         
-        print("\n✅ Tests completados exitosamente!")
+        print("\n✅ Tests completed successfully!")
