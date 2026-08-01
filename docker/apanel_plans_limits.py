@@ -1,18 +1,18 @@
 """
-📊 Plans & Limits Module - Sistema de Planes y Límites para APanel
+📊 Plans & Limits Module - Plans and Limits System for APanel
 
-Este módulo implementa:
-1. Gestión de planes (Free, Pro, Team, Enterprise)
-2. Límites de concurrencia (agentes simultáneos)
-3. Límites de tokens (consumo mensual)
-4. Rate limiting por plan
-5. Alertas de límites cercanos
-6. Sugerencias de upgrade automático
-7. Integración con billing
-8. Enforcement activo de límites
+This module implements:
+1. Plan management (Free, Pro, Team, Enterprise)
+2. Concurrency limits (simultaneous agents)
+3. Token limits (monthly consumption)
+4. Rate limiting by plan
+5. Limit proximity alerts
+6. Automatic upgrade suggestions
+7. Billing integration
+8. Active limit enforcement
 
-Autor: Hermes Agent System
-Fecha: 2025-07-31
+Author: Hermes Agent System
+Date: 2025-07-31
 """
 
 import redis
@@ -26,7 +26,7 @@ import time
 
 
 class PlanTier(Enum):
-    """Niveles de planes disponibles"""
+    """Available plan tiers"""
     FREE = "free"
     PRO = "pro"
     TEAM = "team"
@@ -34,17 +34,17 @@ class PlanTier(Enum):
 
 
 class LimitType(Enum):
-    """Tipos de límites"""
-    CONCURRENT_AGENTS = "concurrent_agents"      # Agentes simultáneos
-    MONTHLY_TOKENS = "monthly_tokens"             # Tokens mensuales
-    DAILY_CALLS = "daily_calls"                   # Llamadas diarias
+    """Limit types"""
+    CONCURRENT_AGENTS = "concurrent_agents"      # Simultaneous agents
+    MONTHLY_TOKENS = "monthly_tokens"             # Monthly tokens
+    DAILY_CALLS = "daily_calls"                   # Daily calls
     API_CALLS_PER_MINUTE = "api_calls_per_minute" # Rate limiting
-    STORAGE_DAYS = "storage_days"                 # Retención de datos
+    STORAGE_DAYS = "storage_days"                 # Data retention
 
 
 @dataclass
 class PlanLimits:
-    """Límites de un plan específico"""
+    """Limits for a specific plan"""
     concurrent_agents: int
     monthly_tokens: int
     daily_calls: int
@@ -57,7 +57,7 @@ class PlanLimits:
 
 @dataclass
 class Plan:
-    """Definición completa de un plan"""
+    """Complete plan definition"""
     id: str
     name: str
     tier: PlanTier
@@ -84,7 +84,7 @@ class Plan:
 
 @dataclass
 class UsageStats:
-    """Estadísticas de uso de un cliente"""
+    """Customer usage statistics"""
     current_concurrent_agents: int
     monthly_tokens_used: int
     daily_calls: int
@@ -97,7 +97,7 @@ class UsageStats:
 
 @dataclass
 class LimitStatus:
-    """Estado de límites de un cliente"""
+    """Customer limit status"""
     plan_id: str
     plan_name: str
     tier: PlanTier
