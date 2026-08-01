@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APanel - Planes y Límites</title>
+    <title>APanel - Plans and Limits</title>
     <style>
         * {
             margin: 0;
@@ -415,26 +415,26 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>🎯 Planes y Límites</h1>
-            <p>Gestiona tu suscripción y monitorea el uso de tu plan</p>
+            <h1>🎯 Plans and Limits</h1>
+            <p>Manage your subscription and monitor your plan usage</p>
             
             <div class="current-plan" id="currentPlan">
-                <h2>📊 Plan Actual: <span id="planName">Cargando...</span></h2>
+                <h2>📊 Current Plan: <span id="planName">Loading...</span></h2>
                 <div class="plan-details">
                     <div class="detail-item">
-                        <strong>Precio Mensual</strong>
+                        <strong>Monthly Price</strong>
                         <span id="planPrice">$0.00</span>
                     </div>
                     <div class="detail-item">
-                        <strong>Agentes Concurrentes</strong>
+                        <strong>Concurrent Agents</strong>
                         <span id="concurrentAgents">0/0</span>
                     </div>
                     <div class="detail-item">
-                        <strong>Tokens Mensuales</strong>
+                        <strong>Monthly Tokens</strong>
                         <span id="monthlyTokens">0/0</span>
                     </div>
                     <div class="detail-item">
-                        <strong>Próximo Billing</strong>
+                        <strong>Next Billing</strong>
                         <span id="nextBilling">--</span>
                     </div>
                 </div>
@@ -443,7 +443,7 @@
         
         <!-- Usage Section -->
         <div class="usage-section">
-            <h2>📈 Uso Actual</h2>
+            <h2>📈 Current Usage</h2>
             <div class="usage-metrics" id="usageMetrics">
                 <!-- Usage cards will be loaded here -->
             </div>
@@ -451,7 +451,7 @@
         
         <!-- Alerts Section -->
         <div class="alerts-section" id="alertsSection" style="display: none;">
-            <h2>⚠️ Alertas y Sugerencias</h2>
+            <h2>⚠️ Alerts and Suggestions</h2>
             <div id="alertsList">
                 <!-- Alerts will be loaded here -->
             </div>
@@ -459,7 +459,7 @@
         
         <!-- Plans Section -->
         <div class="plans-section">
-            <h2>📦 Planes Disponibles</h2>
+            <h2>📦 Available Plans</h2>
             <div class="plans-grid" id="plansGrid">
                 <!-- Plan cards will be loaded here -->
             </div>
@@ -469,12 +469,12 @@
     <!-- Upgrade Modal -->
     <div class="modal" id="upgradeModal">
         <div class="modal-content">
-            <h2>🚀 Upgrade de Plan</h2>
+            <h2>🚀 Plan Upgrade</h2>
             <div class="form-group">
-                <label for="targetPlan">Plan a seleccionar:</label>
+                <label for="targetPlan">Select Plan:</label>
                 <select id="targetPlan">
-                    <option value="pro">Pro Tier - $49/mes</option>
-                    <option value="team">Team Tier - $249/mes</option>
+                    <option value="pro">Pro Tier - $49/mo</option>
+                    <option value="team">Team Tier - $249/mo</option>
                     <option value="enterprise">Enterprise Tier - Custom</option>
                 </select>
             </div>

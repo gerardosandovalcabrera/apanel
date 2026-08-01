@@ -248,12 +248,12 @@
         </div>
         
         <div class="alerts-section" id="alertsSection" style="display: none;">
-            <h3>🔔 Alertas Activas</h3>
+            <h3>🔔 Active Alerts</h3>
             <div id="alertsList"></div>
         </div>
         
         <div class="optimizations-section" id="optimizationsSection" style="display: none;">
-            <h3>💡 Sugerencias de Optimización</h3>
+            <h3>💡 Optimization Suggestions</h3>
             <div id="optimizationsList"></div>
         </div>
     </div>
@@ -281,13 +281,13 @@
             const costSummary = data.cost_summary;
             const budgetStatus = data.budget_status;
             
-            // Costo total
+            // Total cost
             document.getElementById('totalCost').textContent = `$${costSummary.total_cost.toFixed(2)}`;
             
             // Tokens
             document.getElementById('totalTokens').textContent = costSummary.total_tokens.toLocaleString();
             
-            // Presupuesto
+            // Budget
             if (budgetStatus) {
                 const percentage = budgetStatus.percentage_used;
                 const budgetCard = document.getElementById('budgetCard');
@@ -295,7 +295,7 @@
                 const budgetPercentage = document.getElementById('budgetPercentage');
                 
                 budgetUsed.textContent = `$${budgetStatus.current_spent.toFixed(2)} / $${budgetStatus.monthly_budget.toFixed(2)}`;
-                budgetPercentage.textContent = `${percentage.toFixed(1)}% usado`;
+                budgetPercentage.textContent = `${percentage.toFixed(1)}% used`;
                 
                 if (percentage >= 100) {
                     budgetCard.className = 'stat-card danger';
@@ -306,7 +306,7 @@
                 }
             }
             
-            // Llamadas
+            // Calls
             document.getElementById('totalCalls').textContent = costSummary.calls_count.toLocaleString();
         }
         
@@ -329,7 +329,7 @@
                 data: {
                     labels: models,
                     datasets: [{
-                        label: 'Costo ($)',
+                        label: 'Cost ($)',
                         data: costs,
                         backgroundColor: [
                             'rgba(102, 126, 234, 0.8)',
