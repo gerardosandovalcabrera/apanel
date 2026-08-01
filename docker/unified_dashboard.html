@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APanel - Sistema Unificado</title>
+    <title>APanel - Unified System</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -236,27 +236,27 @@
 </head>
 <body>
     <div class="header">
-        <h1>🚀 APanel - Sistema Unificado</h1>
-        <p>Gestión de Agentes + Billing + Planes & Límites en una sola plataforma</p>
+        <h1>🚀 APanel - Unified System</h1>
+        <p>Agent Management + Billing + Plans & Limits in a single platform</p>
     </div>
     
     <div class="nav-tabs">
         <button class="nav-tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
-        <button class="nav-tab" onclick="showTab('agents')">🤖 Agentes</button>
+        <button class="nav-tab" onclick="showTab('agents')">🤖 Agents</button>
         <button class="nav-tab" onclick="showTab('billing')">💰 Billing</button>
-        <button class="nav-tab" onclick="showTab('plans')">📋 Planes</button>
+        <button class="nav-tab" onclick="showTab('plans')">📋 Plans</button>
     </div>
     
     <div class="content">
         <!-- Dashboard Tab -->
         <div id="dashboard-tab" class="tab-content active">
-            <button class="refresh-btn" onclick="loadDashboard()">🔄 Actualizar</button>
+            <button class="refresh-btn" onclick="loadDashboard()">🔄 Refresh</button>
             
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>🤖 Agentes Totales</h3>
+                    <h3>🤖 Total Agents</h3>
                     <div class="value" id="totalAgents">0</div>
-                    <div class="sub-value" id="healthyAgents">0 sanos</div>
+                    <div class="sub-value" id="healthyAgents">0 healthy</div>
                 </div>
                 
                 <div class="stat-card">

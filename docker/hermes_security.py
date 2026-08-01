@@ -1,12 +1,12 @@
 """
-Sistema de Seguridad para Hermes Multi-Agent Management
-Implementación completa de autenticación y autorización
+Hermes Multi-Agent Management Security System
+Complete implementation of authentication and authorization
 
-Arquitectura de Seguridad:
-- OAuth2 para humanos (GitHub/Google)
-- JWT con API Keys para agentes
-- Múltiples capas de defensa
-- Auditoría completa
+Security Architecture:
+- OAuth2 for humans (GitHub/Google)
+- JWT with API Keys for agents
+- Multiple defense layers
+- Complete auditing
 """
 
 import os
@@ -24,17 +24,17 @@ import bcrypt
 from flask import request, jsonify, g
 import redis
 
-# Configuración de logging
+# Logging configuration
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('HermesSecurity')
 
-# Configuración de seguridad
+# Security configuration
 SECURITY_CONFIG = {
     # JWT Configuration
     "JWT_SECRET_KEY": os.getenv('JWT_SECRET_KEY', secrets.token_hex(32)),
     "JWT_ALGORITHM": "HS256",
-    "JWT_ACCESS_TOKEN_EXPIRES": 3600,  # 1 hora
-    "JWT_REFRESH_TOKEN_EXPIRES": 2592000,  # 30 días
+    "JWT_ACCESS_TOKEN_EXPIRES": 3600,  # 1 hour
+    "JWT_REFRESH_TOKEN_EXPIRES": 2592000,  # 30 days
     
     # API Keys
     "API_KEY_LENGTH": 64,
@@ -52,14 +52,14 @@ SECURITY_CONFIG = {
     
     # Security
     "MAX_LOGIN_ATTEMPTS": 5,
-    "LOCKOUT_TIME": 900,  # 15 minutos
-    "SESSION_TIMEOUT": 3600,  # 1 hora
+    "LOCKOUT_TIME": 900,  # 15 minutes
+    "SESSION_TIMEOUT": 3600,  # 1 hour
     
     # Encryption
     "ENCRYPTION_KEY": os.getenv('ENCRYPTION_KEY', secrets.token_hex(32)).encode(),
 }
 
-# Redis para rate limiting y sesiones
+# Redis for rate limiting and sessions
 redis_client = redis.Redis(
     host=os.getenv('REDIS_HOST', 'localhost'),
     port=int(os.getenv('REDIS_PORT', 6379)),
@@ -69,7 +69,7 @@ redis_client = redis.Redis(
 
 @dataclass
 class User:
-    """Usuario del sistema (humanos)."""
+    """System user (humans)."""
     id: str
     username: str
     email: str
