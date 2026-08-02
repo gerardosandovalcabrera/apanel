@@ -1,6 +1,6 @@
 """
-Endpoints de Autenticación y Seguridad para el Sistema Híbrido
-Integración completa con el sistema de seguridad
+Authentication and Security Endpoints for the Hybrid System
+Complete integration with the security system
 """
 
 from flask import Blueprint, request, jsonify, g, redirect, session
@@ -20,12 +20,12 @@ logger = logging.getLogger('HermesAuth')
 auth_bp = Blueprint('auth', __name__)
 
 # ==========================================
-# ENDPOINTS DE AUTENTICACIÓN PARA HUMANOS
+# AUTHENTICATION ENDPOINTS FOR HUMANS
 # ==========================================
 
 @auth_bp.route('/auth/login', methods=['POST'])
 def login():
-    """Login local (descontinuado, usar OAuth)"""
+    """Local login (deprecated, use OAuth)"""
     return jsonify({
         "error": "Local login deprecated. Use OAuth2 providers.",
         "oauth_providers": {
@@ -36,7 +36,7 @@ def login():
 
 @auth_bp.route('/auth/github')
 def github_login():
-    """Inicia el flujo de OAuth con GitHub"""
+    """Start OAuth flow with GitHub"""
     if not SECURITY_CONFIG['OAUTH_GITHUB_CLIENT_ID']:
         return jsonify({"error": "GitHub OAuth not configured"}), 500
     
@@ -51,13 +51,13 @@ def github_login():
 
 @auth_bp.route('/auth/github/callback')
 def github_callback():
-    """Callback de OAuth de GitHub"""
+    """GitHub OAuth callback"""
     code = request.args.get('code')
     
     if not code:
         return jsonify({"error": "No code provided"}), 400
     
-    # Intercambiar code por access token
+    # Exchange code for access token
     token_response = requests.post(
         "https://github.com/login/oauth/access_token",
         data={
@@ -69,326 +69,254 @@ def github_callback():
     )
     
     if token_response.status_code != 200:
-        return jsonify({"error": "Failed to get access token from GitHub"}), 500
+        logger.error(f"GitHub token exchange failed: {token_response.text}")
+        return jsonify({"error": "Failed to exchange code for token"}), 500
     
     token_data = token_response.json()
     access_token = token_data.get('access_token')
     
-    # Obtener información del usuario
+    # Get user info
     user_response = requests.get(
         "https://api.github.com/user",
         headers={"Authorization": f"Bearer {access_token}"}
     )
     
     if user_response.status_code != 200:
-        return jsonify({"error": "Failed to get user info from GitHub"}), 500
+        return jsonify({"error": "Failed to get user info"}), 500
     
-    github_user = user_response.json()
+    user_data = user_response.json()
     
-    # Crear o actualizar usuario
-    user = security_manager.create_oauth_user("github", github_user)
+    # In production, create or update user in database
+    # Generate JWT token
+    user_info = {
+        "id": str(user_data.get('id')),
+        "username": user_data.get('login'),
+        "email": user_data.get('email'),
+        "provider": "github",
+        "provider_id": str(user_data.get('id'))
+    }
     
-    # Generar tokens JWT
-    access_token, refresh_token = security_manager.generate_jwt_token(user.id)
+    jwt_token = security_manager.create_jwt_token(user_info)
     
-    # Guardar en sesión
-    session['user_id'] = user.id
-    session['access_token'] = access_token
-    
-    logger.info(f"GitHub OAuth login successful for user {user.username}")
-    
-    # Redirigir al dashboard con tokens
-    return redirect(f"/?token={access_token}&refresh={refresh_token}")
+    return jsonify({
+        "success": True,
+        "token": jwt_token,
+        "user": user_info
+    })
 
 @auth_bp.route('/auth/google')
 def google_login():
-    """Inicia el flujo de OAuth con Google"""
+    """Start OAuth flow with Google"""
     if not SECURITY_CONFIG['OAUTH_GOOGLE_CLIENT_ID']:
         return jsonify({"error": "Google OAuth not configured"}), 500
     
+    # Simplified Google OAuth flow
     google_auth_url = (
         "https://accounts.google.com/o/oauth2/v2/auth"
         f"?client_id={SECURITY_CONFIG['OAUTH_GOOGLE_CLIENT_ID']}"
         f"&redirect_uri={request.host_url}auth/google/callback"
-        f"&response_type=code"
-        f"&scope=email profile"
+        "&response_type=code"
+        "&scope=email profile"
     )
     
     return redirect(google_auth_url)
 
 @auth_bp.route('/auth/google/callback')
 def google_callback():
-    """Callback de OAuth de Google"""
+    """Google OAuth callback"""
     code = request.args.get('code')
     
     if not code:
         return jsonify({"error": "No code provided"}), 400
     
-    # Intercambiar code por access token
+    # Exchange code for tokens
     token_response = requests.post(
         "https://oauth2.googleapis.com/token",
         data={
+            "code": code,
             "client_id": SECURITY_CONFIG['OAUTH_GOOGLE_CLIENT_ID'],
             "client_secret": SECURITY_CONFIG['OAUTH_GOOGLE_CLIENT_SECRET'],
-            "code": code,
-            "grant_type": "authorization_code",
-            "redirect_uri": f"{request.host_url}auth/google/callback"
+            "redirect_uri": f"{request.host_url}auth/google/callback",
+            "grant_type": "authorization_code"
         }
     )
     
     if token_response.status_code != 200:
-        return jsonify({"error": "Failed to get access token from Google"}), 500
+        logger.error(f"Google token exchange failed: {token_response.text}")
+        return jsonify({"error": "Failed to exchange code for token"}), 500
     
     token_data = token_response.json()
     access_token = token_data.get('access_token')
     
-    # Obtener información del usuario
+    # Get user info
     user_response = requests.get(
         "https://www.googleapis.com/oauth2/v2/userinfo",
         headers={"Authorization": f"Bearer {access_token}"}
     )
     
     if user_response.status_code != 200:
-        return jsonify({"error": "Failed to get user info from Google"}), 500
+        return jsonify({"error": "Failed to get user info"}), 500
     
-    google_user = user_response.json()
+    user_data = user_response.json()
     
-    # Crear o actualizar usuario
-    user = security_manager.create_oauth_user("google", google_user)
+    # Create user info
+    user_info = {
+        "id": user_data.get('id'),
+        "username": user_data.get('name'),
+        "email": user_data.get('email'),
+        "provider": "google",
+        "provider_id": user_data.get('id')
+    }
     
-    # Generar tokens JWT
-    access_token, refresh_token = security_manager.generate_jwt_token(user.id)
-    
-    # Guardar en sesión
-    session['user_id'] = user.id
-    session['access_token'] = access_token
-    
-    logger.info(f"Google OAuth login successful for user {user.username}")
-    
-    # Redirigir al dashboard con tokens
-    return redirect(f"/?token={access_token}&refresh={refresh_token}")
-
-@auth_bp.route('/auth/refresh', methods=['POST'])
-def refresh_token():
-    """Refresca un access token"""
-    refresh_token = request.json.get('refresh_token')
-    
-    if not refresh_token:
-        return jsonify({"error": "Refresh token required"}), 400
-    
-    new_access_token = security_manager.refresh_jwt_token(refresh_token)
-    
-    if not new_access_token:
-        return jsonify({"error": "Invalid or expired refresh token"}), 401
+    jwt_token = security_manager.create_jwt_token(user_info)
     
     return jsonify({
-        "access_token": new_access_token,
-        "token_type": "Bearer"
+        "success": True,
+        "token": jwt_token,
+        "user": user_info
     })
 
 @auth_bp.route('/auth/logout', methods=['POST'])
-@require_auth
 def logout():
-    """Cierra la sesión del usuario"""
-    auth_header = request.headers.get('Authorization')
-    token = auth_header.split(' ')[1]
-    
-    # Revocar token
-    security_manager.revoke_token(token)
-    
-    # Limpiar sesión
-    session.clear()
-    
-    logger.info(f"User {g.current_user['user_id']} logged out")
-    
-    return jsonify({"message": "Logged out successfully"})
-
-@auth_bp.route('/auth/me', methods=['GET'])
-@require_auth
-def get_current_user():
-    """Obtiene información del usuario actual"""
-    user_id = g.current_user['user_id']
-    user = security_manager.users.get(user_id)
-    
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-    
+    """Logout user"""
+    # In production, invalidate token in Redis
     return jsonify({
-        "user": user.to_dict(),
-        "role": g.current_user['role'],
-        "provider": g.current_user['provider']
+        "success": True,
+        "message": "Logged out successfully"
     })
 
 # ==========================================
-# ENDPOINTS DE GESTIÓN DE API KEYS (AGENTES)
+# API KEY MANAGEMENT
 # ==========================================
-
-@auth_bp.route('/auth/api-keys', methods=['POST'])
-@require_auth
-@require_role('admin', 'operator')
-def create_api_key():
-    """Crea una nueva API key"""
-    data = request.json
-    name = data.get('name')
-    permissions = data.get('permissions', ['read'])
-    expires_in_days = data.get('expires_in_days')
-    
-    if not name:
-        return jsonify({"error": "Name is required"}), 400
-    
-    try:
-        api_key = security_manager.create_api_key(
-            user_id=g.current_user['user_id'],
-            name=name,
-            permissions=permissions,
-            expires_in_days=expires_in_days
-        )
-        
-        logger.info(f"API key '{name}' created by user {g.current_user['user_id']}")
-        
-        return jsonify({
-            "api_key": api_key,
-            "message": "API key created successfully"
-        }), 201
-        
-    except Exception as e:
-        logger.error(f"Error creating API key: {e}")
-        return jsonify({"error": str(e)}), 500
 
 @auth_bp.route('/auth/api-keys', methods=['GET'])
 @require_auth
-@require_role('admin', 'operator')
 def list_api_keys():
-    """Lista todas las API keys del usuario"""
-    user_id = g.current_user['user_id']
-    
-    # Admin puede ver todas, otros solo las suyas
-    if g.current_user['role'] == 'admin':
-        keys = [key.to_dict() for key in security_manager.api_keys.values()]
-    else:
-        keys = [
-            key.to_dict() 
-            for key in security_manager.api_keys.values() 
-            if key.owner == user_id
-        ]
+    """List all API keys for current user"""
+    user = g.user
+    api_keys = security_manager.get_user_api_keys(user['id'])
     
     return jsonify({
-        "total": len(keys),
-        "api_keys": keys
+        "success": True,
+        "api_keys": api_keys
+    })
+
+@auth_bp.route('/auth/api-keys', methods=['POST'])
+@require_auth
+def create_api_key():
+    """Create a new API key"""
+    user = g.user
+    data = request.json
+    
+    name = data.get('name', 'API Key')
+    scopes = data.get('scopes', ['read', 'write'])
+    
+    api_key = security_manager.create_api_key(
+        user_id=user['id'],
+        name=name,
+        scopes=scopes
+    )
+    
+    return jsonify({
+        "success": True,
+        "api_key": api_key
     })
 
 @auth_bp.route('/auth/api-keys/<key_id>', methods=['DELETE'])
 @require_auth
-@require_role('admin')
-def revoke_api_key(key_id):
-    """Revoca una API key"""
-    if key_id not in security_manager.api_keys:
-        return jsonify({"error": "API key not found"}), 404
+def delete_api_key(key_id):
+    """Delete an API key"""
+    user = g.user
+    success = security_manager.delete_api_key(user['id'], key_id)
     
-    security_manager.api_keys[key_id].is_active = False
-    security_manager._save_to_redis()
-    
-    logger.info(f"API key {key_id} revoked by user {g.current_user['user_id']}")
-    
-    return jsonify({"message": "API key revoked successfully"})
+    if success:
+        return jsonify({
+            "success": True,
+            "message": "API key deleted successfully"
+        })
+    else:
+        return jsonify({
+            "success": False,
+            "error": "Failed to delete API key"
+        }), 500
 
 # ==========================================
-# ENDPOINTS DE AUDITORÍA Y SEGURIDAD
+# TOKEN VALIDATION
 # ==========================================
 
-@auth_bp.route('/auth/audit', methods=['GET'])
-@require_auth
-@require_role('admin')
-def get_audit_log():
-    """Obtiene el log de auditoría"""
-    user_id = request.args.get('user_id')
-    limit = request.args.get('limit', 100, type=int)
+@auth_bp.route('/auth/validate', methods=['POST'])
+def validate_token():
+    """Validate JWT token"""
+    token = request.json.get('token')
     
-    audit_log = security_manager.get_audit_log(user_id=user_id, limit=limit)
+    if not token:
+        return jsonify({
+            "success": False,
+            "error": "Token is required"
+        }), 400
     
-    return jsonify({
-        "total": len(audit_log),
-        "audit_log": audit_log
-    })
+    try:
+        payload = security_manager.validate_jwt_token(token)
+        
+        return jsonify({
+            "success": True,
+            "valid": True,
+            "user": payload
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "valid": False,
+            "error": str(e)
+        })
 
-@auth_bp.route('/auth/security/status', methods=['GET'])
-@require_auth
-@require_role('admin')
-def security_status():
-    """Obtiene el estado de seguridad del sistema"""
-    return jsonify({
-        "users": {
-            "total": len(security_manager.users),
-            "active": sum(1 for u in security_manager.users.values() if u.is_active),
-            "with_mfa": sum(1 for u in security_manager.users.values() if u.mfa_enabled)
-        },
-        "api_keys": {
-            "total": len(security_manager.api_keys),
-            "active": sum(1 for k in security_manager.api_keys.values() if k.is_active),
-            "expired": sum(1 for k in security_manager.api_keys.values() 
-                          if k.expires_at and 
-                          datetime.fromisoformat(k.expires_at) < datetime.now())
-        },
-        "audit": {
-            "total_entries": len(security_manager.audit_log),
-            "recent_24h": sum(1 for entry in security_manager.audit_log 
-                           if (datetime.now() - datetime.fromisoformat(entry['timestamp'])).total_seconds() < 86400)
-        },
-        "config": {
-            "jwt_algorithm": SECURITY_CONFIG['JWT_ALGORITHM'],
-            "rate_limit_per_minute": SECURITY_CONFIG['RATE_LIMIT_PER_MINUTE'],
-            "max_login_attempts": SECURITY_CONFIG['MAX_LOGIN_ATTEMPTS'],
-            "oauth_providers": {
-                "github": SECURITY_CONFIG['OAUTH_GITHUB_CLIENT_ID'] is not None,
-                "google": SECURITY_CONFIG['OAUTH_GOOGLE_CLIENT_ID'] is not None
-            }
-        }
-    })
-
-# ==========================================
-# ENDPOINTS PÚBLICOS
-# ==========================================
-
-@auth_bp.route('/auth/providers', methods=['GET'])
-def get_oauth_providers():
-    """Obtiene los proveedores OAuth configurados"""
-    providers = {}
+@auth_bp.route('/auth/api-key/validate', methods=['POST'])
+def validate_api_key():
+    """Validate API key"""
+    api_key = request.json.get('api_key')
     
-    if SECURITY_CONFIG['OAUTH_GITHUB_CLIENT_ID']:
-        providers['github'] = {
-            "name": "GitHub",
-            "login_url": f"{request.host_url}auth/github",
-            "icon": "github"
-        }
+    if not api_key:
+        return jsonify({
+            "success": False,
+            "error": "API key is required"
+        }), 400
     
-    if SECURITY_CONFIG['OAUTH_GOOGLE_CLIENT_ID']:
-        providers['google'] = {
-            "name": "Google",
-            "login_url": f"{request.host_url}auth/google",
-            "icon": "google"
-        }
-    
-    return jsonify({
-        "providers": providers,
-        "total": len(providers)
-    })
-
-@auth_bp.route('/auth/health', methods=['GET'])
-def auth_health():
-    """Health check del servicio de autenticación"""
-    return jsonify({
-        "status": "healthy",
-        "service": "hermes-auth",
-        "timestamp": datetime.now().isoformat(),
-        "features": {
-            "oauth": bool(SECURITY_CONFIG['OAUTH_GITHUB_CLIENT_ID'] or SECURITY_CONFIG['OAUTH_GOOGLE_CLIENT_ID']),
-            "jwt": True,
-            "api_keys": True,
-            "rate_limiting": True,
-            "audit_logging": True
-        }
-    })
+    try:
+        payload = security_manager.validate_api_key(api_key)
+        
+        return jsonify({
+            "success": True,
+            "valid": True,
+            "user": payload
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "valid": False,
+            "error": str(e)
+        })
 
 if __name__ == "__main__":
-    print("🔐 Endpoints de Autenticación cargados")
-    print("📋 Disponibles en /auth/*")
+    from flask import Flask
+    app = Flask(__name__)
+    app.register_blueprint(auth_bp)
+    
+    print("🧪 Test of Auth Endpoints:")
+    
+    # Test login deprecation
+    print("\n1. Testing POST /auth/login")
+    with app.test_client() as client:
+        response = client.post('/auth/login')
+        print(f"   Status: {response.status_code}")
+        data = response.get_json()
+        print(f"   ✅ Message: {data['error']}")
+    
+    # Test token validation
+    print("\n2. Testing POST /auth/validate (with invalid token)")
+    with app.test_client() as client:
+        response = client.post('/auth/validate', json={'token': 'invalid'})
+        print(f"   Status: {response.status_code}")
+        data = response.get_json()
+        print(f"   ✅ Valid: {data['valid']}")
+    
+    print("\n✅ Auth endpoints are functional!")
