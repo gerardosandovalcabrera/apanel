@@ -15,9 +15,11 @@ services:
       - ./logs:/app/logs:rw
     environment:
       - FLASK_ENV=production
+      - DATABASE_URL=postgresql://apanel:apanel_password@postgres:5432/apanel_db
       - REDIS_URL=redis://redis:6379/0
       - DASHBOARD_SECRET_KEY=your-secret-key-change-me
     depends_on:
+      - postgres
       - redis
     networks:
       - hermes-network
@@ -28,6 +30,28 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  # PostgreSQL Database para persistencia
+  postgres:
+    image: postgres:15-alpine
+    container_name: hermes-postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=apanel_db
+      - POSTGRES_USER=apanel
+      - POSTGRES_PASSWORD=apanel_password
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    networks:
+      - hermes-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U apanel -d apanel_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Redis para caché y colas
   redis:
@@ -67,6 +91,8 @@ services:
       - production
 
 volumes:
+  postgres-data:
+    driver: local
   redis-data:
     driver: local
 

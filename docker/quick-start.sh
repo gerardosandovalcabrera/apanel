@@ -117,8 +117,11 @@ FLASK_PORT=5000
 NGINX_PORT=80
 NGINX_SSL_PORT=443
 
-# Database (using SQLite for simplicity)
-DATABASE_URL=sqlite:///data/apanel.db
+# Database (using PostgreSQL for persistence)
+DATABASE_URL=postgresql://apanel:apanel_password@postgres:5432/apanel_db
+
+# Redis
+REDIS_URL=redis://redis:6379/0
 
 # Logging
 LOG_LEVEL=INFO
