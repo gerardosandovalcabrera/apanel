@@ -1,14 +1,14 @@
 #!/bin/bash
 # ============================================
-# 🔧 AUTO-INSTALLER - Instala Docker y APanel
+# 🔧 AUTO-INSTALLER - Install Docker and APanel
 # ============================================
-# Este script detecta tu sistema operativo e instala
-# Docker automáticamente si no está instalado
+# This script detects your operating system and
+# installs Docker automatically if not installed
 # ============================================
 
 set -e
 
-# Colores
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -21,13 +21,13 @@ cat << "EOF"
 ╔═══════════════════════════════════════════════════════════════╗
 ║                                                               ║
 ║   🔧 APanel Auto-Installer                                   ║
-║   Instalación automática de Docker y APanel                   ║
+║   Automatic installation of Docker and APanel                 ║
 ║                                                               ║
 ╚═══════════════════════════════════════════════════════════════╝
 EOF
 echo -e "${NC}"
 
-# Detectar sistema operativo
+# Detect operating system
 print_step() {
     echo -e "\n${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${BLUE}📋 $1${NC}"
@@ -46,27 +46,27 @@ print_warning() {
     echo -e "${YELLOW}⚠️  $1${NC}"
 }
 
-# Detectar sistema operativo
-print_step "Detectando sistema operativo..."
+# Detect operating system
+print_step "Detecting operating system..."
 
 if [ -f /etc/os-release ]; then
     . /etc/os-release
     OS=$ID
     OS_VERSION=$VERSION_ID
-    print_success "Sistema detectado: $OS $OS_VERSION"
+    print_success "System detected: $OS $OS_VERSION"
 else
-    print_error "No se pudo detectar el sistema operativo"
+    print_error "Could not detect operating system"
     exit 1
 fi
 
-# Función para instalar Docker en Ubuntu/Debian
+# Function to install Docker on Ubuntu/Debian
 install_docker_ubuntu() {
-    print_step "Instalando Docker en Ubuntu/Debian..."
+    print_step "Installing Docker on Ubuntu/Debian..."
     
-    # Actualizar repositorios
+    # Update repositories
     sudo apt-get update -qq
     
-    # Instalar dependencias
+    # Install dependencies
     sudo apt-get install -y \
         apt-transport-https \
         ca-certificates \
@@ -74,173 +74,137 @@ install_docker_ubuntu() {
         gnupg \
         lsb-release
     
-    # Agregar clave GPG de Docker
+    # Add Docker GPG key
     curl -fsSL https://download.docker.com/linux/$OS/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
     
-    # Agregar repositorio de Docker
+    # Add Docker repository
     echo \
       "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/$OS \
       $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
     
-    # Instalar Docker
+    # Install Docker
     sudo apt-get update -qq
     sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
     
-    # Instalar docker-compose separado
+    # Install docker-compose separately
     sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
     
-    # Habilitar y arrancar Docker
+    # Enable and start Docker
     sudo systemctl enable docker
     sudo systemctl start docker
     
-    # Agregar usuario al grupo docker
+    # Add user to docker group
     sudo usermod -aG docker $USER
     
-    print_success "Docker instalado exitosamente"
-    print_warning "Necesitas cerrar sesión y volver a entrar para que los cambios de grupo surtan efecto"
+    print_success "Docker installed successfully"
+    print_warning "Please log out and log back in for group changes to take effect"
 }
 
-# Función para instalar Docker en CentOS/RHEL
+# Function to install Docker on CentOS/RHEL
 install_docker_centos() {
-    print_step "Instalando Docker en CentOS/RHEL..."
+    print_step "Installing Docker on CentOS/RHEL..."
     
-    # Instalar dependencias
-    sudo yum install -y yum-utils
+    # Remove old versions
+    sudo yum remove -y docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine
     
-    # Agregar repositorio de Docker
+    # Install dependencies
+    sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+    
+    # Add Docker repository
     sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
     
-    # Instalar Docker
+    # Install Docker
     sudo yum install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
     
-    # Instalar docker-compose
-    sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-    
-    # Habilitar y arrancar Docker
+    # Enable and start Docker
     sudo systemctl enable docker
     sudo systemctl start docker
     
-    # Agregar usuario al grupo docker
+    # Add user to docker group
     sudo usermod -aG docker $USER
     
-    print_success "Docker instalado exitosamente"
-    print_warning "Necesitas cerrar sesión y volver a entrar para que los cambios de grupo surtan efecto"
+    print_success "Docker installed successfully"
+    print_warning "Please log out and log back in for group changes to take effect"
 }
 
-# Función para instalar Docker en Fedora
-install_docker_fedora() {
-    print_step "Instalando Docker en Fedora..."
+# Function to install Docker on macOS
+install_docker_macos() {
+    print_step "Installing Docker on macOS..."
     
-    # Agregar repositorio de Docker
-    sudo dnf -y install dnf-plugins-core
-    sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
-    
-    # Instalar Docker
-    sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-    
-    # Instalar docker-compose
-    sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-    
-    # Habilitar y arrancar Docker
-    sudo systemctl enable docker
-    sudo systemctl start docker
-    
-    # Agregar usuario al grupo docker
-    sudo usermod -aG docker $USER
-    
-    print_success "Docker instalado exitosamente"
-    print_warning "Necesitas cerrar sesión y volver a entrar para que los cambios de grupo surtan efecto"
-}
-
-# Verificar si Docker está instalado
-print_step "Verificando instalación de Docker..."
-
-if ! command -v docker &> /dev/null; then
-    print_warning "Docker no está instalado. Procediendo a instalar..."
-    
-    case $OS in
-        ubuntu|debian)
-            install_docker_ubuntu
-            ;;
-        centos|rhel)
-            install_docker_centos
-            ;;
-        fedora)
-            install_docker_fedora
-            ;;
-        *)
-            print_error "Sistema operativo no soportado automáticamente: $OS"
-            echo "Por favor instala Docker manualmente: https://docs.docker.com/get-docker/"
-            exit 1
-            ;;
-    esac
-    
-    # Verificar instalación
-    if command -v docker &> /dev/null; then
-        DOCKER_VERSION=$(docker --version | awk '{print $3}' | sed 's/,//')
-        print_success "Docker instalado: $DOCKER_VERSION"
-    else
-        print_error "Error en la instalación de Docker"
-        exit 1
+    # Check if Homebrew is installed
+    if ! command -v brew &> /dev/null; then
+        print_warning "Homebrew not found. Installing Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
-else
-    DOCKER_VERSION=$(docker --version | awk '{print $3}' | sed 's/,//')
-    print_success "Docker ya está instalado: $DOCKER_VERSION"
-fi
-
-# Verificar Docker Compose
-if ! command -v docker-compose &> /dev/null; then
-    print_warning "Docker Compose no encontrado, instalando..."
-    sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-    print_success "Docker Compose instalado"
-else
-    COMPOSE_VERSION=$(docker-compose --version | awk '{print $4}' | sed 's/,//')
-    print_success "Docker Compose ya está instalado: $COMPOSE_VERSION"
-fi
-
-# Probar Docker
-print_step "Probando Docker..."
-
-if sudo docker run --rm hello-world > /dev/null 2>&1; then
-    print_success "Docker funciona correctamente"
-else
-    print_error "Docker no funciona correctamente"
-    print_warning "Intenta reiniciar el servicio Docker: sudo systemctl restart docker"
-    exit 1
-fi
-
-# Descargar APanel si no existe
-print_step "Verificando instalación de APanel..."
-
-if [ ! -d "apanel" ]; then
-    print_warning "APanel no encontrado, clonando desde GitHub..."
-    git clone git@github.com:gerardosandovalcabrera/apanel.git
-    cd apanel
-    print_success "APanel clonado exitosamente"
-else
-    print_success "APanel ya existe"
-    cd apanel
     
-    # Actualizar si existe
-    print_step "Actualizando APanel..."
-    git pull origin main
+    # Install Docker Desktop
+    brew install --cask docker
+    
+    print_success "Docker Desktop installed. Please start it from Applications."
+}
+
+# Check if Docker is already installed
+print_step "Checking if Docker is already installed..."
+
+if command -v docker &> /dev/null; then
+    DOCKER_VERSION=$(docker --version | awk '{print $3}' | sed 's/,//')
+    print_success "Docker is already installed (version $DOCKER_VERSION)"
+    
+    # Check if Docker is running
+    if docker info &> /dev/null; then
+        print_success "Docker is running"
+    else
+        print_warning "Docker is installed but not running. Starting Docker..."
+        sudo systemctl start docker 2>/dev/null || print_warning "Please start Docker manually"
+    fi
+    
+    # Prompt for reinstall
+    read -p "Do you want to reinstall Docker? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        print_success "Skipping Docker installation"
+    else
+        print_step "Reinstalling Docker..."
+    fi
 fi
 
-# Verificar que estamos en el directorio correcto
-if [ ! -f "quick-start.sh" ]; then
-    print_error "No encontramos el script quick-start.sh"
+# Install Docker based on OS
+case "$OS" in
+    ubuntu|debian|linuxmint)
+        install_docker_ubuntu
+        ;;
+    centos|rhel|fedora)
+        install_docker_centos
+        ;;
+    darwin)
+        install_docker_macos
+        ;;
+    *)
+        print_error "Unsupported operating system: $OS"
+        print_warning "Please install Docker manually from https://docs.docker.com/get-docker/"
+        exit 1
+        ;;
+esac
+
+print_step "Verifying Docker installation..."
+
+# Wait a bit for Docker to start
+sleep 3
+
+if docker info &> /dev/null; then
+    print_success "Docker is running correctly!"
+    
+    # Display Docker version
+    docker --version
+    docker-compose --version 2>/dev/null || echo "docker-compose: Not installed as plugin"
+else
+    print_error "Docker is not running. Please start it manually."
     exit 1
 fi
 
-# Ejecutar quick-start
-print_step "Ejecutando configuración rápida de APanel..."
-
-chmod +x quick-start.sh
-./quick-start.sh
-
-print_success "¡Instalación completada!"
-echo -e "${GREEN}🎉 El sistema APanel está listo para usar${NC}\n"
+echo -e "\n${GREEN}╔═══════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║                                                               ║${NC}"
+echo -e "${GREEN}║   🎉 Docker installation completed successfully!             ║${NC}"
+echo -e "${GREEN}║                                                               ║${NC}"
+echo -e "${GREEN}╚═══════════════════════════════════════════════════════════════╝${NC}\n"

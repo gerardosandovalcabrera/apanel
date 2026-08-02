@@ -1,14 +1,14 @@
 #!/bin/bash
 # ============================================
-# 🚀 APanel - Inicio Ultra Simple
+# 🚀 APanel - Ultra Simple Start
 # ============================================
-# EL SCRIPT MÁS SIMPLE POSIBLE
-# Un solo comando para tener todo funcionando
+# THE SIMPLEST POSSIBLE SCRIPT
+# One single command to get everything running
 # ============================================
 
 set -e
 
-# Colores
+# Colors
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
@@ -18,55 +18,55 @@ echo -e "${BLUE}"
 cat << "EOF"
 ╔═══════════════════════════════════════════════════════════════╗
 ║                                                               ║
-║   🚀 APanel - Inicio en UN solo comando                      ║
-║   Sistema de Administración Multi-Agente de Hermes             ║
+║   🚀 APanel - Start in ONE single command                    ║
+║   Hermes Multi-Agent Management System                        ║
 ║                                                               ║
 ╚═══════════════════════════════════════════════════════════════╝
 EOF
 echo -e "${NC}"
 
-# Función para mostrar progreso
+# Function to show progress
 show_progress() {
     echo -e "${CYAN}📋 $1${NC}"
 }
 
-# Verificar si Docker está instalado
+# Check if Docker is installed
 if ! command -v docker &> /dev/null; then
-    show_progress "Docker no encontrado. Instalando automáticamente..."
+    show_progress "Docker not found. Installing automatically..."
     
-    # Ejecutar auto-installer
+    # Execute auto-installer
     if [ -f "auto-install.sh" ]; then
         chmod +x auto-install.sh
         ./auto-install.sh
     else
-        echo "Error: auto-install.sh no encontrado"
+        echo "Error: auto-install.sh not found"
         exit 1
     fi
 else
-    show_progress "Docker ya está instalado ✅"
+    show_progress "Docker is already installed ✅"
 fi
 
-# Verificar si estamos en el directorio correcto
+# Check if we're in the correct directory
 if [ -f "quick-start.sh" ]; then
-    show_progress "Iniciando APanel..."
+    show_progress "Starting APanel..."
     chmod +x quick-start.sh
     ./quick-start.sh
 else
-    # Intentar descargar APanel
-    show_progress "Descargando APanel desde GitHub..."
+    # Try to download APanel
+    show_progress "Downloading APanel from GitHub..."
     
     if [ -d "apanel" ]; then
         cd apanel
     else
-        git clone git@github.com:gerardosandovalcabrera/apanel.git
+        git clone git@github.com:gerardosandovalcabreira/apanel.git
         cd apanel
     fi
     
-    # Ejecutar quick-start
+    # Execute quick-start
     chmod +x docker/quick-start.sh
     docker/quick-start.sh
 fi
 
-echo -e "\n${GREEN}🎉 ¡TODO LISTO! APanel está corriendo${NC}\n"
+echo -e "\n${GREEN}🎉 ALL READY! APanel is running${NC}\n"
 echo -e "${BLUE}📊 Dashboard: http://localhost:5000/${NC}"
 echo -e "${BLUE}🤖 MCP Server: http://localhost:5000/mcp/${NC}\n"
